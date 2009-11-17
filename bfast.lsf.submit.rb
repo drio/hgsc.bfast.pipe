@@ -112,7 +112,7 @@ cmds   = BfastCmd.new(config)
 splits = Dir[config.global_reads_dir + "/*.fastq"]
 
 # Per each split, create the basic bfast workflow with deps
-one_machine = "rusage[mem=30000]span[hosts=1]"
+one_machine = "rusage[mem=29000]span[hosts=1]"
 reg_job     = "rusage[mem=40000]"
 final_deps = []
 splits.each do |s|
