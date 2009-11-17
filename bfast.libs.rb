@@ -35,12 +35,15 @@ class LSFDealer
   end
 
   # Add a regular job
-  def add_job(job_root, cmd, deps=nil)
+  def add_job(job_root, cmd, resources=nil, deps=nil)
     job_name = @seed + "." + job_root + "." +  @n_jobs.to_s + rand(10000).to_s
     wait_for = deps.nil? ? "" : (find_deps deps)
     @contents << "bsub -o #{@log_dir}/#{job_name}.out \\"
-    @contents << "-e #{@log_dir}/#{job_name}.err -J #{job_name} \\"
-    @contents << "-q #{@queue} #{wait_for} \"#{cmd}\""
+    @contents << "-e #{@log_dir}/#{job_name}.err \\"
+    @contents << "-J #{job_name} \\"
+    @contents << "-q #{@queue} #{wait_for} \\"
+    @contents << (resources.nil? ? "" : "-R '#{resources}' \\")
+    @contents << "\"#{cmd}\""
 		@n_jobs += 1
 		job_name
   end

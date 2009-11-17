@@ -9,9 +9,7 @@ cmd = "#{config.global_bfast_bin}/scripts/solid2fastq " +
       "-o #{config.input_run_name} " +
       "#{config.global_run_dir}/*.csfasta #{config.global_run_dir}/*.qual"
 puts cmd
-Dir.chdir(config.global_reads_dir) do
-	`#{cmd}`
-end
+Dir.chdir(config.global_reads_dir) { `#{cmd}` }
 
 __END__
 input_options:
@@ -26,12 +24,13 @@ global_options:
  space: CS
  fasta_file_name: /genomes/hg18/hg18.fasta
  timing: ON
+ logs_dir: /stornext/snfs3/drio_scratch/small_test/logs
  run_dir: /stornext/snfs3/drio_scratch/small_test/input
  reads_dir: /stornext/snfs3/drio_scratch/small_test/reads
  output_dir: /stornext/snfs3/drio_scratch/small_test/output
  tmp_dir: /tmp_dir
  output_id: output_id_like_test_drio
- reads_per_file: 25000
+ reads_per_file: 200000
 match_options:
  threads: 8
 local_options:
