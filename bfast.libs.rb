@@ -42,13 +42,15 @@ class LSFDealer
     @contents << "-e #{@log_dir}/#{job_name}.err \\"
     @contents << "-J #{job_name} \\"
     @contents << "-q #{@queue} #{wait_for} \\"
-    @contents << (resources.nil? ? "" : "-R '#{resources}' \\")
+    @contents << "-R '#{resources}' \\" if resources
     @contents << "\"#{cmd}\""
+    @contents << ""
 		@n_jobs += 1
 		job_name
   end
 
-	def blank
+	def blank(msg=nil)
+    @contents << "# " + msg if msg
     @contents << ""
 	end
 

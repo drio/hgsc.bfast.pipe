@@ -112,22 +112,24 @@ cmds   = BfastCmd.new(config)
 splits = Dir[config.global_reads_dir + "/*.fastq"]
 
 # Per each split, create the basic bfast workflow with deps
+one_machine = "rusage[mem=30000]span[hosts=1]"
+reg_job     = "rusage[mem=40000]"
 final_deps = []
 splits.each do |s|
 	dep = lsf.add_job("match" , cmds.match(s))
-	dep = lsf.add_job("local" , cmds.local , [dep])
-	dep = lsf.add_job("postp" , cmds.post  , [dep])
-	dep = lsf.add_job("tosam" , cmds.tosam , [dep])
-	dep = lsf.add_job("index1", cmds.index1, [dep])
-	dep = lsf.add_job("sort"  , cmds.sort  , [dep])
-	dep = lsf.add_job("index2", cmds.index2, [dep])
-	lsf.blank
+	dep = lsf.add_job("local" , cmds.local , one_machine, [dep])
+	dep = lsf.add_job("postp" , cmds.post  , one_machine, [dep])
+	dep = lsf.add_job("tosam" , cmds.tosam , reg_job    , [dep])
+	dep = lsf.add_job("index1", cmds.index1, reg_job    , [dep])
+	dep = lsf.add_job("sort"  , cmds.sort  , reg_job    , [dep])
+	dep = lsf.add_job("index2", cmds.index2, reg_job    , [dep])
+	lsf.blank "----------------"
 
 	final_deps << dep
 end
 
 # when all the previous jobs are completed, we can merge all the bams
-lsf.add_job("final_merge", cmds.final_merge, final_deps)
+lsf.add_job("final_merge", cmds.final_merge, reg_job, final_deps)
 
 lsf.create_file
 
