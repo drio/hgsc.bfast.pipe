@@ -5,19 +5,21 @@ $:.unshift File.join(File.dirname(__FILE__))
 
 # Encapsulates the creation of bfast commands
 class BfastCmd
-	def initialize(config)
-		@config = config
+	def initialize(config, read_files)
+		@config   = config
+		@n_splits = read_files.size
 	end
 
 	# bfast match -A 1 -t -n 8 -f $ref -r $fastq > bfast.matches.file.$root.bmf
 	def match(fastq)
-		main_bin('match') + core_cmd + " -r #{fastq} > " + match_file
+		set_current_split(fastq)
+		main_bin('match') + core_cmd + " #{tmp_arg} -r #{fastq} > " + match_file
 	end
 	
 	# bfast localalign -A 1 -t -n 8 -f $ref
   # -m bfast.matches.file.$root.bmf # bfast.aligned.file.$root.baf
 	def local
-		main_bin('local') + core_cmd + " -m #{match_file} > #{local_file}"
+		main_bin('localalign') + core_cmd + " -m #{match_file} > #{local_file}"
 	end
 
 	# bfast postprocess -f $ref -i bfast.aligned.file.$root.baf 
@@ -29,7 +31,7 @@ class BfastCmd
 
 	# samtools view -bt $ref 
   # -o bfast.reported.file.$root.bam bfast.reported.file.$root.sam
-	def tosam
+	def tobam
 		"#{samtools} view -bt #{ref} -o #{bam_file} #{sam_file}"
 	end
 
@@ -60,16 +62,20 @@ class BfastCmd
 		"#{@config.global_bfast_bin}/bfast #{sub_cmd} "
 	end
 
+	def tmp_arg
+		"-T #{@config.global_tmp_dir}"
+	end
+
 	def core_cmd
-		"-A 1 -t -n 8 -f #{ref}"
+		 "-A 1 -t -n 8 -f #{ref}"
 	end
 
 	def match_file
-		"bfast.matches.file.#{root_name}.bmf"
+		"bfast.matches.file.#{root_name}.#{@current_split}.bmf"
 	end
 
 	def local_file
-		"bfast.matches.file.#{root_name}.baf"
+		"bfast.matches.file.#{root_name}.#{@current_split}.baf"
 	end
 
 	def ref
@@ -77,7 +83,7 @@ class BfastCmd
 	end
 
 	def sam_file
-		"bfast.reported.file.#{root_name}.sam"
+		"bfast.reported.file.#{root_name}.#{@current_split}.sam"
 	end
 
 	def root_name
@@ -89,15 +95,19 @@ class BfastCmd
 	end
 
 	def bam_file
-		"bfast.reported.file.#{root_name}.bam"
+		"bfast.reported.file.#{root_name}.#{@current_split}.bam"
 	end
 
 	def sam_file
-		"bfast.reported.file.#{root_name}.sam"
+		"bfast.reported.file.#{root_name}.#{@current_split}.sam"
 	end
 
 	def bam_file_sorted
-		"bfast.reported.file.#{root_name}.sorted.bam"
+		"bfast.reported.file.#{root_name}.#{@current_split}.sorted"
+	end
+
+	def set_current_split(fastq_file)
+		@current_split = "split" + fastq_file.split(".")[-2]
 	end
 end
 
@@ -105,21 +115,20 @@ end
 config = Config.new( YAML::load(DATA) )
 # Prepare LSF 
 lsf    = LSFDealer.new(config.input_run_name, config.global_lsf_queue)
-# Prepare bfast cmd generation
-cmds   = BfastCmd.new(config)
-
 # Get list of read splits/files
 splits = Dir[config.global_reads_dir + "/*.fastq"]
+# Prepare bfast cmd generation
+cmds   = BfastCmd.new(config, splits)
 
 # Per each split, create the basic bfast workflow with deps
 one_machine = "rusage[mem=29000]span[hosts=1]"
-reg_job     = "rusage[mem=40000]"
+reg_job     = "rusage[mem=4000]"
 final_deps = []
 splits.each do |s|
 	dep = lsf.add_job("match" , cmds.match(s))
 	dep = lsf.add_job("local" , cmds.local , one_machine, [dep])
 	dep = lsf.add_job("postp" , cmds.post  , one_machine, [dep])
-	dep = lsf.add_job("tosam" , cmds.tosam , reg_job    , [dep])
+	dep = lsf.add_job("tobam" , cmds.tobam , reg_job    , [dep])
 	dep = lsf.add_job("index1", cmds.index1, reg_job    , [dep])
 	dep = lsf.add_job("sort"  , cmds.sort  , reg_job    , [dep])
 	dep = lsf.add_job("index2", cmds.index2, reg_job    , [dep])
@@ -141,17 +150,17 @@ input_options:
  qf3: quals_f3
  qr3: quals_r3
 global_options:
- lsf_queue: normal
- bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/bfast
- samtools_bin: /stornext/snfs1/next-gen/software/abi/bioscope/corona/bin
+ lsf_queue: test
+ bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/bfast/bfast
+ samtools_bin: /stornext/snfs1/next-gen/software/samtools-0.1.6
  space: CS
- fasta_file_name: /stornext/snfs1/next-gen/solid/cmaps/h/human_g1k_v37/human_g1k_v37.fa
+ fasta_file_name: /stornext/snfs3/drio_scratch/bf.indexes/small/test.fasta
  timing: ON
  logs_dir: /stornext/snfs3/drio_scratch/small_test/logs
  run_dir: /stornext/snfs3/drio_scratch/small_test/input
  reads_dir: /stornext/snfs3/drio_scratch/small_test/reads
  output_dir: /stornext/snfs3/drio_scratch/small_test/output
- tmp_dir: /space1/tmp/tmp.bfast.solid.pipe
+ tmp_dir: /space1/tmp/
  reads_per_file: 100000
 match_options:
  threads: 8
