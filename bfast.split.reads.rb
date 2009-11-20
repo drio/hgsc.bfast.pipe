@@ -30,7 +30,7 @@ global_options:
  output_dir: /stornext/snfs3/drio_scratch/small_test/output
  tmp_dir: /tmp_dir
  output_id: output_id_like_test_drio
- reads_per_file: 200000
+ reads_per_file: 25000
 match_options:
  threads: 8
 local_options:

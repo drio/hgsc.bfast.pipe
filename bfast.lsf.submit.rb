@@ -8,6 +8,11 @@ class BfastCmd
 	def initialize(config, read_files)
 		@config   = config
 		@n_splits = read_files.size
+		create_output_dirs
+	end
+
+	def create_output_dirs
+		(1..@n_splits).each {|s| FileUtils.mkdir_p "./output/split#{s}" }
 	end
 
 	# bfast match -A 1 -t -n 8 -f $ref -r $fastq > bfast.matches.file.$root.bmf
@@ -53,10 +58,19 @@ class BfastCmd
 
 	# samtools merge out.bam in1.bam in2.bam in3.bam
 	def final_merge
-		"#{samtools} merge #{root_name}.merged.bam *.sorted.bam"
-	end	
+		"#{samtools} merge ./output/#{root_name}.merged.bam #{list_bams_to_merge}"
+	end
 
 	private
+
+	def list_bams_to_merge
+		t = "output/SS/bfast.reported.file.#{root_name}.SS.sorted.bam"
+		(1..@n_splits).inject("") {|list, s| list << t.gsub(/SS/, "split#{s}") + " " }
+	end
+
+	def split_dir
+		"./output/#{@curr_split}"
+	end
 	
 	def main_bin(sub_cmd)
 		"#{@config.global_bfast_bin}/bfast #{sub_cmd} "
@@ -71,11 +85,11 @@ class BfastCmd
 	end
 
 	def match_file
-		"bfast.matches.file.#{root_name}.#{@current_split}.bmf"
+		split_dir + "/bfast.matches.file.#{root_name}.#{@curr_split}.bmf"
 	end
 
 	def local_file
-		"bfast.matches.file.#{root_name}.#{@current_split}.baf"
+		split_dir + "/bfast.matches.file.#{root_name}.#{@curr_split}.baf"
 	end
 
 	def ref
@@ -83,7 +97,7 @@ class BfastCmd
 	end
 
 	def sam_file
-		"bfast.reported.file.#{root_name}.#{@current_split}.sam"
+		split_dir + "/bfast.reported.file.#{root_name}.#{@curr_split}.sam"
 	end
 
 	def root_name
@@ -95,19 +109,15 @@ class BfastCmd
 	end
 
 	def bam_file
-		"bfast.reported.file.#{root_name}.#{@current_split}.bam"
-	end
-
-	def sam_file
-		"bfast.reported.file.#{root_name}.#{@current_split}.sam"
+		split_dir + "/bfast.reported.file.#{root_name}.#{@curr_split}.bam"
 	end
 
 	def bam_file_sorted
-		"bfast.reported.file.#{root_name}.#{@current_split}.sorted"
+		split_dir + "/bfast.reported.file.#{root_name}.#{@curr_split}.sorted"
 	end
 
 	def set_current_split(fastq_file)
-		@current_split = "split" + fastq_file.split(".")[-2]
+		@curr_split = "split" + fastq_file.split(".")[-2]
 	end
 end
 
@@ -125,9 +135,9 @@ one_machine = "rusage[mem=29000]span[hosts=1]"
 reg_job     = "rusage[mem=4000]"
 final_deps = []
 splits.each do |s|
-	dep = lsf.add_job("match" , cmds.match(s))
+	dep = lsf.add_job("match" , cmds.match(s), one_machine)
 	dep = lsf.add_job("local" , cmds.local , one_machine, [dep])
-	dep = lsf.add_job("postp" , cmds.post  , one_machine, [dep])
+	dep = lsf.add_job("postp" , cmds.post  , reg_job    , [dep])
 	dep = lsf.add_job("tobam" , cmds.tobam , reg_job    , [dep])
 	dep = lsf.add_job("index1", cmds.index1, reg_job    , [dep])
 	dep = lsf.add_job("sort"  , cmds.sort  , reg_job    , [dep])
