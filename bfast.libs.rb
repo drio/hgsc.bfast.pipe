@@ -1,4 +1,41 @@
-%w(yaml fileutils).each { |dep| require dep }
+%w(yaml fileutils singleton).each { |dep| require dep }
+
+# Miscelanea
+module Misc
+	VERSION = "0.1a"
+end
+
+# Deals with the User Interface
+class UInterface
+	include Singleton
+
+	# Loads config as argument or uses DATA
+	def load_config(arguments, tool)
+		@tool = tool
+		(arguments.size == 1) ? File.new(arguments[0]) : error("Config not found")
+	end
+
+	def error(msg)
+		puts "Error: " + msg; puts "" 
+    puts usage
+		exit 1
+	end
+
+	private
+
+	def usage
+		template = %Q{
+		bfast hgsc pipeline
+    VERSION: xversionx
+
+    Usage: xcmdx <config_file>
+		}
+
+    template.gsub!(/xversionx/, Misc::VERSION)
+    template.gsub!(/xcmdx/    , File.basename(@tool))
+    template.gsub!(/^\s+/     , '')
+	end
+end
 
 # Encapsulates the creation of bfast commands
 class BfastCmd
@@ -45,7 +82,7 @@ class BfastCmd
   # samtools sort ./bfast.reported.file.$root.bam 
   # ./bfast.reported.file.$root.sorted
 	def sort
-		"#{samtools} sort #{bam_file} -o #{bam_file_sorted} "
+		"#{samtools} sort #{bam_file} #{bam_file_sorted} "
 	end
 
   # samtools index bfast.reported.file.$root.sorted.bam
@@ -140,7 +177,7 @@ end
 
 # Deals with the creation and deps of LSF jobs
 class LSFDealer
-  def initialize(seed, queue, output_file="cluster_JOBS.sh")
+  def initialize(seed, queue, n_splits, output_file="cluster_JOBS.sh")
     @queue = queue
     @output_file = output_file
     @contents = [] # contents of the job_list script
@@ -150,14 +187,15 @@ class LSFDealer
     # We'll use this for the job name
 		@seed = seed
     FileUtils.mkdir_p @log_dir
+		(1..n_splits).each {|s| FileUtils.mkdir_p "./#{@log_dir}/#{s}" }
   end
 
   # Add a regular job
-  def add_job(job_root, cmd, resources=nil, deps=nil)
+  def add_job(job_root, cmd, split_n, resources=nil, deps=nil)
     job_name = @seed + "." + job_root + "." +  @n_jobs.to_s + rand(10000).to_s
     wait_for = deps.nil? ? "" : (find_deps deps)
-    @contents << "bsub -o #{@log_dir}/#{job_name}.out \\"
-    @contents << "-e #{@log_dir}/#{job_name}.err \\"
+    @contents << "bsub -o #{@log_dir}/#{split_n}/#{job_name}.out \\"
+    @contents << "-e #{@log_dir}/#{split_n}/#{job_name}.err \\"
     @contents << "-J #{job_name} \\"
     @contents << "-q #{@queue} #{wait_for} \\"
     @contents << "-R '#{resources}' \\" if resources

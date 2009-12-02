@@ -4,11 +4,15 @@ $:.unshift File.join(File.dirname(__FILE__))
 %w(bfast.libs).each { |dep| require dep }
 
 # Load config
-config = Config.new( YAML::load(DATA) )
-# Prepare LSF 
-lsf    = LSFDealer.new(config.input_run_name, config.global_lsf_queue)
+ui = UInterface.instance
+config = Config.new( YAML::load(ui.load_config(ARGV, $0)) )
+
 # Get list of read splits/files
 splits = Dir[config.global_reads_dir + "/*.fastq"]
+# Prepare LSF 
+lsf    = LSFDealer.new(config.input_run_name, 
+                       config.global_lsf_queue,
+                       splits.size)
 # Prepare bfast cmd generation
 cmds   = BfastCmd.new(config, splits)
 
@@ -16,21 +20,22 @@ cmds   = BfastCmd.new(config, splits)
 one_machine = "rusage[mem=29000]span[hosts=1]"
 reg_job     = "rusage[mem=4000]"
 final_deps = []
-splits.each do |s|
-	dep = lsf.add_job("match" , cmds.match(s), one_machine)
-	dep = lsf.add_job("local" , cmds.local , one_machine, [dep])
-	dep = lsf.add_job("postp" , cmds.post  , reg_job    , [dep])
-	dep = lsf.add_job("tobam" , cmds.tobam , reg_job    , [dep])
-	dep = lsf.add_job("index1", cmds.index1, reg_job    , [dep])
-	dep = lsf.add_job("sort"  , cmds.sort  , reg_job    , [dep])
-	dep = lsf.add_job("index2", cmds.index2, reg_job    , [dep])
+splits.each_with_index do |s, sn|
+	sn += 1
+	dep = lsf.add_job("match" , cmds.match(s), sn, one_machine)
+	dep = lsf.add_job("local" , cmds.local   , sn, one_machine, [dep])
+	dep = lsf.add_job("postp" , cmds.post    , sn, reg_job    , [dep])
+	dep = lsf.add_job("tobam" , cmds.tobam   , sn, reg_job    , [dep])
+	dep = lsf.add_job("index1", cmds.index1  , sn, reg_job    , [dep])
+	dep = lsf.add_job("sort"  , cmds.sort    , sn, reg_job    , [dep])
+	dep = lsf.add_job("index2", cmds.index2  , sn, reg_job    , [dep])
 	lsf.blank "----------------"
 
 	final_deps << dep
 end
 
 # when all the previous jobs are completed, we can merge all the bams
-lsf.add_job("final_merge", cmds.final_merge, reg_job, final_deps)
+lsf.add_job("final_merge", cmds.final_merge, ".", reg_job, final_deps)
 
 lsf.create_file
 

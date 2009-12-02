@@ -3,7 +3,8 @@
 $:.unshift File.join(File.dirname(__FILE__))
 %w(bfast.libs).each { |dep| require dep }
 
-config = Config.new( YAML::load(DATA) )
+ui = UInterface.instance
+config = Config.new( YAML::load(ui.load_config(ARGV, $0)) )
 cmd = "#{config.global_bfast_bin}/scripts/solid2fastq " +
       "-n #{config.global_reads_per_file} " +
       "-o #{config.input_run_name} " +
