@@ -17,18 +17,18 @@ lsf    = LSFDealer.new(config.input_run_name,
 cmds   = BfastCmd.new(config, splits)
 
 # Per each split, create the basic bfast workflow with deps
-one_machine = "rusage[mem=29000]span[hosts=1]"
+one_machine = "rusage[mem=28000]span[hosts=1]"
 reg_job     = "rusage[mem=4000]"
 final_deps = []
-splits.each_with_index do |s, sn|
-	sn += 1
+splits.each do |s|
+	sn  = s.split(".")[-2]
 	dep = lsf.add_job("match" , cmds.match(s), sn, one_machine)
 	dep = lsf.add_job("local" , cmds.local   , sn, one_machine, [dep])
 	dep = lsf.add_job("postp" , cmds.post    , sn, reg_job    , [dep])
 	dep = lsf.add_job("tobam" , cmds.tobam   , sn, reg_job    , [dep])
-	dep = lsf.add_job("index1", cmds.index1  , sn, reg_job    , [dep])
 	dep = lsf.add_job("sort"  , cmds.sort    , sn, reg_job    , [dep])
-	dep = lsf.add_job("index2", cmds.index2  , sn, reg_job    , [dep])
+	dep = lsf.add_job("index1", cmds.index1  , sn, reg_job    , [dep])
+	#dep = lsf.add_job("index2", cmds.index2  , sn, reg_job    , [dep])
 	lsf.blank "----------------"
 
 	final_deps << dep

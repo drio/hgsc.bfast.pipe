@@ -192,7 +192,8 @@ class LSFDealer
 
   # Add a regular job
   def add_job(job_root, cmd, split_n, resources=nil, deps=nil)
-    job_name = @seed + "." + job_root + "." +  @n_jobs.to_s + rand(10000).to_s
+    job_name = @seed + "." + job_root + ".split" + split_n.to_s + "." +
+               @n_jobs.to_s + rand(100).to_s
     wait_for = deps.nil? ? "" : (find_deps deps)
     @contents << "bsub -o #{@log_dir}/#{split_n}/#{job_name}.out \\"
     @contents << "-e #{@log_dir}/#{split_n}/#{job_name}.err \\"
