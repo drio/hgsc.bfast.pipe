@@ -26,8 +26,8 @@ splits.each do |s|
 	dep = lsf.add_job("local" , cmds.local   , sn, one_machine, [dep])
 	dep = lsf.add_job("postp" , cmds.post    , sn, reg_job    , [dep])
 	dep = lsf.add_job("tobam" , cmds.tobam   , sn, reg_job    , [dep])
-	dep = lsf.add_job("sort"  , cmds.sort    , sn, reg_job    , [dep])
-	dep = lsf.add_job("index1", cmds.index1  , sn, reg_job    , [dep])
+	#dep = lsf.add_job("sort"  , cmds.sort    , sn, reg_job    , [dep])
+	#dep = lsf.add_job("index1", cmds.index1  , sn, reg_job    , [dep])
 	#dep = lsf.add_job("index2", cmds.index2  , sn, reg_job    , [dep])
 	lsf.blank "----------------"
 
@@ -35,7 +35,7 @@ splits.each do |s|
 end
 
 # when all the previous jobs are completed, we can merge all the bams
-lsf.add_job("final_merge", cmds.final_merge, ".", reg_job, final_deps)
+lsf.add_job("final_merge", cmds.final_merge, "", reg_job, final_deps)
 
 lsf.create_file
 
