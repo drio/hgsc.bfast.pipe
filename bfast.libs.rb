@@ -178,7 +178,7 @@ end
 
 # Deals with the creation and deps of LSF jobs
 class LSFDealer
-  def initialize(seed, queue, n_splits, output_file="cluster_JOBS.sh")
+  def initialize(seed, queue, n_splits=1, output_file="cluster_JOBS.sh")
     @queue = queue
     @output_file = output_file
     @contents = [] # contents of the job_list script
@@ -192,7 +192,7 @@ class LSFDealer
   end
 
   # Add a regular job
-  def add_job(job_root, cmd, split_n, resources=nil, deps=nil)
+  def add_job(job_root, cmd, split_n=1, resources=nil, deps=nil)
     job_name = @seed + "." + job_root + ".split" + split_n.to_s + "." +
                @n_jobs.to_s + rand(100).to_s
     wait_for = deps.nil? ? "" : (find_deps deps)

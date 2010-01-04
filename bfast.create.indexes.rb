@@ -71,9 +71,9 @@ lsf  = LSFDealer.new("drd", "test")
 
 # Color space / solid
 # Create LSF job to convert ref CS to bin format
+
 convert_dep = lsf.add_job("bfast.convert.ref.cs",
-                           bfast_convert(1, fasta_file),
-                           "rusage[mem=10000]")
+                           bfast_convert(1, fasta_file), 1, "rusage[mem=10000]")
 lsf.blank
 	
 # Create the LSF jobs for the SOLiD indexes
@@ -82,7 +82,7 @@ solid_50bp_layouts.each_slice(2) do |ly|
   hs, mask = ly.map {|e| e.chomp }
   cmd = bfast_index(hs, mask, i_number.to_s, 1, fasta_file, "/space1/tmp/")
   lsf.add_job("bfast.index.cs.#{mask}",
-               cmd,
+               cmd, 1,
                "rusage[mem=30000]span[hosts=1]",
                [convert_dep])
   i_number += 1
@@ -90,8 +90,8 @@ end
 
 # Sequence space / illumina
 # Create LSF job to convert ref SS to bin format
-convert_dep = lsf.add_job("bfast.convert.ref.cs",
-                           bfast_convert(0, fasta_file),
+convert_dep = lsf.add_job("bfast.convert.ref.ss",
+                           bfast_convert(0, fasta_file), 1,
                            "rusage[mem=10000]")
 lsf.blank
 
@@ -100,7 +100,7 @@ illumina_75bp_layouts.each_slice(2) do |ly|
   hs, mask = ly.map {|e| e.chomp }
   cmd = bfast_index(hs, mask, i_number.to_s, 0, fasta_file, "/space1/tmp/")
   lsf.add_job("bfast.index.nt.#{mask}",
-               cmd,
+               cmd, 1,
                "rusage[mem=30000]span[hosts=1]",
                [convert_dep])
   i_number += 1

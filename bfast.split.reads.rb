@@ -5,7 +5,7 @@ $:.unshift File.join(File.dirname(__FILE__))
 
 ui = UInterface.instance
 config = Config.new( YAML::load(ui.load_config(ARGV, $0)) )
-cmd = "#{config.global_bfast_bin}/scripts/solid2fastq " +
+cmd = "#{config.global_bfast_bin}/../scripts/solid2fastq " +
       "-n #{config.global_reads_per_file} " +
       "-o #{config.input_run_name} " +
       "#{config.global_run_dir}/*.csfasta #{config.global_run_dir}/*.qual"
@@ -20,8 +20,8 @@ input_options:
  qf3: quals_f3
  qr3: quals_r3
 global_options:
- bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/bfast
- samtools_in: /usr/local/samtools
+ bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/bfast/bfast
+ samtools_in: /stornext/snfs1/next-gen/software/samtools-0.1.6
  space: CS
  fasta_file_name: /genomes/hg18/hg18.fasta
  timing: ON
