@@ -66,6 +66,7 @@ class BfastCmd
 	def post
 		main_bin('postprocess') + " -f #{ref} " + " -i #{local_file} " +
 		"-a 3 -O 3 > #{sam_file}"
+		#"-n 8 -a 3 -O 3 > #{sam_file}"
 	end
 
 	# samtools view -bt $ref 
@@ -116,7 +117,7 @@ class BfastCmd
 	end
 
 	def core_cmd
-		 "-A 1 -t -n 8 -f #{ref}"
+		 "-A 1 -t -n #{@config.global_threads} -f #{ref}"
 	end
 
 	def match_file
