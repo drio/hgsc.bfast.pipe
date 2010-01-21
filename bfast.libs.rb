@@ -83,7 +83,22 @@ class BfastCmd
   # samtools sort ./bfast.reported.file.$root.bam 
   # ./bfast.reported.file.$root.sorted
 	def sort
-		"#{samtools} sort #{bam_file} #{bam_file_sorted} "
+		#"#{samtools} sort #{bam_file} #{bam_file_sorted} "
+    "java -jar -Xmx4g #{picardjars}/SortSam.jar " +
+    "TMP_DIR=#{@config.global_tmp_dir} " +
+    "INPUT=#{merged_bam} " +
+    "OUTPUT=#{bam_file_sorted} " +
+    "SORT_ORDER=coordinate VALIDATION_STRINGENCY=SILENT"
+	end
+
+	def dups
+    "java -jar -Xmx4g #{picardjars}/MarkDuplicates.jar " +
+    "TMP_DIR=#{@config.global_tmp_dir} " +
+    "INPUT=#{bam_file_sorted} " +
+		"OUTPUT=#{bam_file_sorted_dups} " +
+    "METRICS_FILE='./metric_file.picard' " +
+		"VERBOSITY=ERROR " +
+    "VALIDATION_STRINGENCY=SILENT "
 	end
 
   # samtools index bfast.reported.file.$root.sorted.bam
@@ -93,10 +108,14 @@ class BfastCmd
 
 	# samtools merge out.bam in1.bam in2.bam in3.bam
 	def final_merge
-		"#{samtools} merge ./output/#{root_name}.merged.bam #{list_bams_to_merge}"
+		"#{samtools} merge #{merged_bam} #{list_bams_to_merge}"
 	end
 
 	private
+
+	def merged_bam
+		"./output/#{root_name}.merged.bam"
+	end
 
 	def list_bams_to_merge
 		#t = "output/SS/bfast.reported.file.#{root_name}.SS.sorted.bam"
@@ -141,7 +160,11 @@ class BfastCmd
 	end
 
 	def samtools
-		"#{@config.global_samtools_bin}/samtools "
+		"#{@config.global_samtools_bin}/samtools"
+	end
+
+	def picardjars
+		"#{@config.global_picardjars}/"
 	end
 
 	def bam_file
@@ -149,7 +172,11 @@ class BfastCmd
 	end
 
 	def bam_file_sorted
-		split_dir + "/bfast.reported.file.#{root_name}.#{@curr_split}.sorted"
+		"./output/#{root_name}.sorted.bam"
+	end
+
+	def bam_file_sorted_dups
+		"./output/#{root_name}.sorted.dups.bam"
 	end
 
 	def set_current_split(fastq_file)
@@ -194,7 +221,8 @@ class LSFDealer
 
   # Add a regular job
   def add_job(job_root, cmd, split_n=1, resources=nil, deps=nil)
-    job_name = @seed + "." + job_root + ".split" + split_n.to_s + "." +
+		r_split  = split_n == "" ? "" : ".split"
+    job_name = @seed + "." + job_root + r_split + split_n.to_s + "." +
                @n_jobs.to_s + rand(100).to_s
     wait_for = deps.nil? ? "" : (find_deps deps)
     @contents << "bsub -o #{@log_dir}/#{split_n}/#{job_name}.out \\"

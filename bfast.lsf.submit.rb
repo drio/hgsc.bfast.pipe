@@ -23,6 +23,8 @@ re_match = config.match_lsf_resources
 re_local = config.local_lsf_resources
 re_post  = config.post_lsf_resources
 re_tobam = config.tobam_lsf_resources
+re_sort  = config.sort_lsf_recources
+re_dups  = config.dups_lsf_recources
 re_final = config.final_lsf_resources
 final_deps = []
 splits.each do |s|
@@ -31,7 +33,6 @@ splits.each do |s|
 	dep = lsf.add_job("local" , cmds.local   , sn, re_local , [dep])
 	dep = lsf.add_job("postp" , cmds.post    , sn, re_post  , [dep])
 	dep = lsf.add_job("tobam" , cmds.tobam   , sn, re_tobam , [dep])
-	#dep = lsf.add_job("sort"  , cmds.sort    , sn, reg_job    , [dep])
 	#dep = lsf.add_job("index1", cmds.index1  , sn, reg_job    , [dep])
 	#dep = lsf.add_job("index2", cmds.index2  , sn, reg_job    , [dep])
 	lsf.blank "----------------"
@@ -40,7 +41,11 @@ splits.each do |s|
 end
 
 # when all the previous jobs are completed, we can merge all the bams
-lsf.add_job("final_merge", cmds.final_merge, "", re_final, final_deps)
+dep = lsf.add_job("merge" , cmds.final_merge, "", re_final, final_deps)
+
+# Sort and mark dups in the final BAM
+dep = lsf.add_job("sort", cmds.sort, "", re_sort, [dep])
+lsf.add_job("dups", cmds.dups, "", re_dups, [dep])
 
 lsf.create_file
 
