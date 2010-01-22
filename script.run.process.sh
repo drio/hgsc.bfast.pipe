@@ -7,23 +7,34 @@
 
 help()
 {
+	echo "$1"
 	echo "Usage:"
 	echo "$0 job_name cmd"
 	exit 1
 }
 
-[ ".$1" == "." ] && help
-[ ".$2" == "." ] && help
+track_dir=`cat bf.config.yaml |\
+grep trackdir | awk -F: '{print $2}' | sed -e 's/ //g'`
+
+[ ".$1" == "." ] && help "Error param: job_name"
+[ ".$2" == "." ] && help "Error param: cmd"
+[ ".$track_dir" == "." ] && help "Error: trackdir not found in config"
 
 job_name="$1"
 cmd="$2"
-output_dir="./track_jobs"
 
-mkdir -p $output_dir
-$cmd
+#echo "jname = $job_name "
+#echo "cmd   = $cmd"
+
+eval $cmd
+
+mkdir -p $track_dir
+
 if [ $? -eq 0 ]
 then
-	touch $output_dir/$job_name.ok
+	touch $track_dir/$job_name.ok
+	exit 0
 else
-	touch $output_dir/$job_name.error
+	touch $track_dir/$job_name.error
+	exit 1
 fi

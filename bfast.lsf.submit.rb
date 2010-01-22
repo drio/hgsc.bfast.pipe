@@ -7,12 +7,17 @@ $:.unshift File.join(File.dirname(__FILE__))
 ui = UInterface.instance
 config = Config.new( YAML::load(ui.load_config(ARGV, $0)) )
 
+# Find path to the wrapper script to run bfast cmds and check 
+# for successful execution
+cmd_wrapper_scpt = File.dirname(__FILE__) + "/script.run.process.sh"
 # Get list of read splits/files
 splits = Dir[config.global_reads_dir + "/*.fastq"]
 # Prepare LSF 
-lsf    = LSFDealer.new(config.input_run_name, 
-                       config.global_lsf_queue,
-                       splits.size)
+lsf = LSFDealer.new(config.input_run_name,
+                    config.global_lsf_queue,
+	  								cmd_wrapper_scpt,
+	  								config.global_trackdir,
+                    splits.size)
 # Prepare bfast cmd generation
 cmds   = BfastCmd.new(config, splits)
 
