@@ -259,7 +259,7 @@ class LSFDealer
     FileUtils.chmod 0755, "./#{@output_file}"
   end
 
-	private
+	private 
 
 	# Wrap the cmd around script.run.process
 	def wrap_cmd(job_name, cmd)
@@ -269,7 +269,9 @@ class LSFDealer
   # Gets the array of deps you want to associate to a job
   def find_deps(s_deps)
     list_of_deps = "-w '"
-    s_deps.each { |d| list_of_deps << "done(#{d})" + " && " }
+    s_deps.each do |d|
+			list_of_deps << "done(#{d})" + " && " if d != ''
+		end
     list_of_deps.gsub!(/ && $/,"'")
   end
 end
