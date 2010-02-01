@@ -2,7 +2,30 @@
 
 # Miscelanea
 module Misc
-	VERSION = "0.1a"
+	VERSION  = "0.1"
+	RG_FNAME = "./rg.txt"
+
+	# Create a file with the @RG line that bfast will use to build the @RG type
+  # in the header of the bam
+	#rg_id: 0                                 ; Read group (BAM spec) 
+	#rg_pl: SOLiD                             ; platform 
+	#rg_pu: SOLiD0097_20081114_1_Hs_1011_MP_F3; Our uniq identifier RUN + LIMS ID
+	#rg_lb: HS_1011_MP                        ; Library 
+	#rg_ds: rl=25                             ; Description rl=25 OR rl=50_25
+	#rg_dt: 2010-01-22T18:20:29-0600          ; date, ISO 8601
+	#rg_sm: CMT-001                           ; sample / pool name
+	#rg_cn: Baylor                            ; center
+	def Misc.create_rg_file(config)
+		rg_data = "@RG\t"
+		%w{ID PL PU LB DS DT SM CN}.each do |t|
+			t_value = eval("config.post_rg_" + t.downcase).to_s
+			puts "#{t}:-#{t_value}--"	
+			raise "Couldn't find #{t} tag in config file." unless t_value
+			rg_data << "#{t}:" + t_value + "\t"
+		end
+
+		File.open(RG_FNAME, "w") {|f| f << rg_data}
+	end
 end
 
 # Deals with the User Interface
@@ -61,11 +84,11 @@ class BfastCmd
 		main_bin('localalign') + core_cmd + " -m #{match_file} > #{local_file}"
 	end
 
-	# bfast postprocess -f $ref -i bfast.aligned.file.$root.baf 
+	# bfast postprocess -f $ref -i bfast.aligned.file.$root.baf
   # -a 3 -O 3 > bfast.reported.file.$root.sam
 	def post
 		main_bin('postprocess') + " -f #{ref} " + " -i #{local_file} " +
-		"-a 3 -O 3 > #{sam_file}"
+		"-a 3 -O 3 -r #{Misc::RG_FNAME} > #{sam_file}"
 		#"-n 8 -a 3 -O 3 > #{sam_file}"
 	end
 
@@ -109,6 +132,17 @@ class BfastCmd
 	# samtools merge out.bam in1.bam in2.bam in3.bam
 	def final_merge
 		"#{samtools} merge #{merged_bam} #{list_bams_to_merge}"
+	end
+
+	# Regenerate the header so we have more useful information on it
+	def gen_header
+		cmd = "echo 'java -jar #{@config.header_regen_jar} "
+		cmd << "type=" + @config.header_sq_type + " "
+		%w{ID PL PU LB DS DT SM CN}.each do |t|
+			t_value = eval("@config.post_rg_" + t.downcase).to_s
+			cmd << "#{t}=" + t_value + " "
+		end
+		cmd << "'"
 	end
 
 	private
@@ -187,7 +221,7 @@ end
 # Reads the bfast experiment config
 class Config
 	def initialize(config)
-	 %w(input global match local post).each {|r| set config, r }
+	 %w(input global match local post header).each {|r| set config, r }
 	end
 
 	# Set all the config entries as methods for this class

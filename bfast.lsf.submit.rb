@@ -10,8 +10,10 @@ config = Config.new( YAML::load(ui.load_config(ARGV, $0)) )
 # Find path to the wrapper script to run bfast cmds and check 
 # for successful execution
 cmd_wrapper_scpt = File.dirname(__FILE__) + "/script.run.process.sh"
+
 # Get list of read splits/files
 splits = Dir[config.global_reads_dir + "/*.fastq"]
+
 # Prepare LSF 
 lsf = LSFDealer.new(config.input_run_name,
                     config.global_lsf_queue,
@@ -20,6 +22,9 @@ lsf = LSFDealer.new(config.input_run_name,
                     splits.size)
 # Prepare bfast cmd generation
 cmds   = BfastCmd.new(config, splits)
+
+# Create the rg.txt file (@RG tag)
+Misc::create_rg_file(config)
 
 # Per each split, create the basic bfast workflow with deps
 #reg_job     = "rusage[mem=4000]"
@@ -31,6 +36,7 @@ re_tobam = config.tobam_lsf_resources
 re_sort  = config.sort_lsf_recources
 re_dups  = config.dups_lsf_recources
 re_final = config.final_lsf_resources
+re_header = config.header_lsf_resources
 final_deps = []
 splits.each do |s|
 	sn  = s.split(".")[-2]
@@ -50,7 +56,9 @@ dep = lsf.add_job("merge" , cmds.final_merge, "", re_final, final_deps)
 
 # Sort and mark dups in the final BAM
 dep = lsf.add_job("sort", cmds.sort, "", re_sort, [dep])
-lsf.add_job("dups", cmds.dups, "", re_dups, [dep])
+dep = lsf.add_job("dups", cmds.dups, "", re_dups, [dep])
+# Regenerate the header so we have better and more clear @SQ entries
+lsf.add_job("regen_bam_header", cmds.gen_header, "", re_header, [dep])
 
 lsf.create_file
 
@@ -62,21 +70,38 @@ input_options:
  qf3: quals_f3
  qr3: quals_r3
 global_options:
- lsf_queue: test
+ lsf_queue: hptest
+ threads: 7
  bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/bfast/bfast
  samtools_bin: /stornext/snfs1/next-gen/software/samtools-0.1.6
  space: CS
  fasta_file_name: /stornext/snfs3/drio_scratch/bf.indexes/small/test.fasta
  timing: ON
- logs_dir: /stornext/snfs3/drio_scratch/small_test/logs
- run_dir: /stornext/snfs3/drio_scratch/small_test/input
- reads_dir: /stornext/snfs3/drio_scratch/small_test/reads
- output_dir: /stornext/snfs3/drio_scratch/small_test/output
+ logs_dir: ./lsf_logs
+ run_dir: /BA_EVAL_01/drio_scratch/bfast/small_test/input
+ reads_dir: /BA_EVAL_01/drio_scratch/bfast/small_test/reads
+ output_dir: /BA_EVAL_01/drio_scratch/bfast/small_test/output
  tmp_dir: /space1/tmp/
- reads_per_file: 100000
+ output_id: output_id_like_test_drio
+ reads_per_file: 50000
 match_options:
  threads: 8
+ lsf_resources: "rusage[mem=2800]span[hosts=1]"
 local_options:
  threads: 8
+ lsf_resources: "rusage[mem=2800]span[hosts=1]"
 post_options:
  algorithm: 4
+ lsf_resources: "rusage[mem=400]"
+ rg_id: 0
+ rg_pl: solid
+ rg_pu: SOLiD0097_20081114_1_Hs_1011_MP_F3
+ rg_lb: HS_1011_MP
+ rg_ds: rl=25
+ rg_dt: 2010-01-22T18:20:29-0600
+ rg_sm: CMT-001
+ rg_cn: Baylor
+tobam_options:
+ lsf_resources: "rusage[mem=400]"
+final_options:
+ lsf_resources: "rusage[mem=400]"
