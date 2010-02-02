@@ -8,7 +8,10 @@ config = Config.new( YAML::load(ui.load_config(ARGV, $0)) )
 cmd = "#{config.global_bfast_bin}/../scripts/solid2fastq " +
       "-n #{config.global_reads_per_file} " +
       "-o #{config.input_run_name} " +
-      "#{config.global_run_dir}/*.csfasta #{config.global_run_dir}/*.qual"
+      Misc::input_compress(config) +
+      Misc::output_compress(config) +
+      "#{config.global_run_dir}/" + Misc::wild("csfasta", config) + " " +
+      "#{config.global_run_dir}/" + Misc::wild("qual", config)
 puts cmd
 Dir.chdir(config.global_reads_dir) { `#{cmd}` }
 

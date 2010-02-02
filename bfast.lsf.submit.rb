@@ -12,7 +12,12 @@ config = Config.new( YAML::load(ui.load_config(ARGV, $0)) )
 cmd_wrapper_scpt = File.dirname(__FILE__) + "/script.run.process.sh"
 
 # Get list of read splits/files
-splits = Dir[config.global_reads_dir + "/*.fastq"]
+#splits = Dir[config.global_reads_dir + "/*.fastq"]
+path_to_fastqs = config.global_reads_dir + "/" + 
+                 Misc::wild("fastq", config).gsub(/ /,'')
+splits = Dir[path_to_fastqs.chomp]
+puts "Splits wild = -#{path_to_fastqs.chomp}-"
+puts "Splits found = #{splits.size}"
 
 # Prepare LSF 
 lsf = LSFDealer.new(config.input_run_name,
@@ -39,7 +44,8 @@ re_final = config.final_lsf_resources
 re_header = config.header_lsf_resources
 final_deps = []
 splits.each do |s|
-	sn  = s.split(".")[-2]
+	sn  = s.match(/\.(\d+)\./)[1]
+	puts "Jobs for split: #{s.split} - #{sn}"
 	dep = lsf.add_job("match" , cmds.match(s), sn, re_match)
 	dep = lsf.add_job("local" , cmds.local   , sn, re_local , [dep])
 	dep = lsf.add_job("postp" , cmds.post    , sn, re_post  , [dep])

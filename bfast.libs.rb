@@ -1,4 +1,4 @@
-%w(yaml fileutils singleton).each { |dep| require dep }
+%w(yaml fileutils singleton digest/md5).each { |dep| require dep }
 
 # Miscelanea
 module Misc
@@ -25,6 +25,42 @@ module Misc
 		end
 
 		File.open(RG_FNAME, "w") {|f| f << rg_data}
+	end
+
+	# Figure out how to flag bfast to process input data
+	def Misc.input_compress(config)
+		case config.global_compress_input
+			when "bzip2"
+				"-j "
+			when "gzip"
+				"-z "
+			else	
+				" "
+		end
+	end
+
+	# Figure out how to flag bfast to process output data
+	def Misc.output_compress(config)
+		case config.global_compress_splits
+			when "bzip2"
+				"-J "
+			when "gzip"
+				"-Z "
+			else	
+				" "
+		end
+	end
+
+	# Generate the wildcard to find files based on the user preferences
+	def Misc.wild(root, config)
+		case config.global_compress_input
+			when "bzip2"
+				"*.#{root}.bz2 "
+			when "gzip"
+				"*.#{root}.gz "
+			else	
+				"*.#{root}"
+		end
 	end
 end
 
@@ -75,7 +111,8 @@ class BfastCmd
 	# bfast match -A 1 -t -n 8 -f $ref -r $fastq > bfast.matches.file.$root.bmf
 	def match(fastq)
 		set_current_split(fastq)
-		main_bin('match') + core_cmd + " #{tmp_arg} -r #{fastq} > " + match_file
+		main_bin('match') + core_cmd + Misc::input_compress(@config) +
+    " #{tmp_arg} -r #{fastq} > " + match_file
 	end
 	
 	# bfast localalign -A 1 -t -n 8 -f $ref
@@ -170,7 +207,7 @@ class BfastCmd
 	end
 
 	def core_cmd
-		 "-A 1 -t -n #{@config.global_threads} -f #{ref}"
+		 "-A 1 -t -n #{@config.global_threads} -f #{ref} "
 	end
 
 	def match_file
@@ -260,7 +297,8 @@ class LSFDealer
   # Add a regular job
   def add_job(job_root, cmd, split_n=1, resources=nil, deps=nil)
 		r_split  = split_n == "" ? "" : ".split"
-    job_name = @seed + "." + job_root + r_split + split_n.to_s
+    job_name = @seed + "." + job_root + r_split + split_n.to_s + "." + 
+               random_string
                # + "." + @n_jobs.to_s + rand(100).to_s
     wait_for = deps.nil? ? "" : (find_deps deps)
 
@@ -294,6 +332,10 @@ class LSFDealer
   end
 
 	private 
+
+	def random_string
+		Digest::MD5.hexdigest(rand(10000000000).to_s)[1..5]
+	end
 
 	# Wrap the cmd around script.run.process
 	def wrap_cmd(job_name, cmd)
