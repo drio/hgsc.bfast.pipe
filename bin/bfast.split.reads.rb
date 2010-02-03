@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby19
 
-$:.unshift File.join(File.dirname(__FILE__))
+$: << File.join(File.dirname(File.dirname($0)), "lib")
 %w(bfast.libs).each { |dep| require dep }
 
 ui = UInterface.instance
