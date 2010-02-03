@@ -15,7 +15,7 @@ input_options:
  run_name: run_small_test
 global_options:
  lsf_queue: hptest
- threads: 7
+ threads: 8
  bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/versions/production/bfast
  samtools_bin: /stornext/snfs1/next-gen/software/samtools-0.1.6
  picardjars: /stornext/snfs1/next-gen/software/picard-tools/current
@@ -33,6 +33,7 @@ global_options:
  tmp_dir: /space1/tmp/
  output_id: output_id_like_test_drio
  reads_per_file: 10000
+# options for compress_input / splits: none gzip bzip2
  compress_input: none
  compress_splits: none
 match_options:
@@ -44,13 +45,22 @@ local_options:
 post_options:
  algorithm: 4
  lsf_resources: "rusage[mem=400]"
+ # Data for the @RG in the bam
+ # Read group id: always 0 since we have reads from one singel run
  rg_id: 0
- rg_pl: solid
- rg_pu: SOLiD0097_20081114_1_Hs_1011_MP_F3
+ # platform: SOLiD
+ rg_pl: SOLiD
+ # unique idententifier for the bam: RUN_NAME + LIMS ID + (*)
+ rg_pu: 0079_20091023_1_SL_AWG_TG_NA19737_000pA_01003244530_1
+ # Library
  rg_lb: HS_1011_MP
+ # read length: FR: rl=NN PE: rl=NN_NN MP: rl=NN_NN
  rg_ds: rl=25
+ # Date the run was produced (ISO 8601 date or date/time)
  rg_dt: 2010-01-22T18:20:29-0600
+ # Sample / Pool
  rg_sm: CMT-001
+ # Name of sequencing center producing the read
  rg_cn: Baylor
 tobam_options:
  lsf_resources: "rusage[mem=400]"
@@ -61,6 +71,9 @@ dups_options:
 final_options:
  lsf_resources: "rusage[mem=400]"
 header_options:
- regen_jar: /path/to/regen.jar
- sq_type: hsap36
+ # path to the jar file that contains the code to regenerate the header
+ regen_jar: /stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/bam.header.creation/bam.header.creation.jar
+ # this is to specify what references to use to generate the header
+ # two valid types: hsap36.1 and hsap37
+ sq_type: hsap36.1
  lsf_resources: "rusage[mem=400]"

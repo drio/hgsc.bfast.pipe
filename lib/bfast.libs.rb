@@ -173,13 +173,14 @@ class BfastCmd
 
 	# Regenerate the header so we have more useful information on it
 	def gen_header
-		cmd = "echo 'java -jar #{@config.header_regen_jar} "
+		cmd = "java -jar #{@config.header_regen_jar} "
 		cmd << "type=" + @config.header_sq_type + " "
-		%w{ID PL PU LB DS DT SM CN}.each do |t|
-			t_value = eval("@config.post_rg_" + t.downcase).to_s
-			cmd << "#{t}=" + t_value + " "
-		end
-		cmd << "'"
+		#%w{ID PL PU LB DS DT SM CN}.each do |t|
+		#	t_value = eval("@config.post_rg_" + t.downcase).to_s
+		#	cmd << "#{t}=" + t_value + " "
+		#end
+		cmd << "I=#{bam_file_sorted_dups} "
+		cmd << "O=#{bam_file_sorted_dups_fix_header} "
 	end
 
 	private
@@ -248,6 +249,10 @@ class BfastCmd
 
 	def bam_file_sorted_dups
 		"./output/#{root_name}.sorted.dups.bam"
+	end
+
+	def bam_file_sorted_dups_fix_header
+		"./output/#{root_name}.sorted.dups.with.header.bam"
 	end
 
 	def set_current_split(fastq_file)
