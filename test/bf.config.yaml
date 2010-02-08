@@ -52,7 +52,9 @@ post_options:
  rg_pl: SOLiD
  # unique idententifier for the bam: RUN_NAME + LIMS ID + (*)
  rg_pu: 0079_20091023_1_SL_AWG_TG_NA19737_000pA_01003244530_1
- # Library
+ # Library, you have to query LIMS(barcode_id) to get the lib
+ # use this perl script for that: hgsc.bfast.pipe/third_party/getLibraryInfo.pl
+ # arguments: 01003244678-1 (barcode + spot_id)
  rg_lb: HS_1011_MP
  # read length: FR: rl=NN PE: rl=NN_NN MP: rl=NN_NN
  rg_ds: rl=25
@@ -66,8 +68,12 @@ tobam_options:
  lsf_resources: "rusage[mem=400]"
 sort_options:
  lsf_resources: "rusage[mem=400]"
+ # Specify how much memory we want to use in the java vm
+ java_vm_mem: "1g"
 dups_options:
  lsf_resources: "rusage[mem=400]"
+ java_vm_mem: "1g"
+ # Specify how much memory we want to use in the java vm
 final_options:
  lsf_resources: "rusage[mem=400]"
 header_options:
