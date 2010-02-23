@@ -22,14 +22,12 @@ grep trackdir | awk -F: '{print $2}' | sed -e 's/ //g'`
 
 job_name="$1"
 cmd="$2"
+mkdir -p $track_dir
 
 #echo "jname = $job_name "
 #echo "cmd   = $cmd"
 
-eval $cmd
-
-mkdir -p $track_dir
-
+eval "$cmd"
 if [ $? -eq 0 ]
 then
 	touch $track_dir/$job_name.ok
