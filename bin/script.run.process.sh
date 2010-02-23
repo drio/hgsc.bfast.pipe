@@ -5,12 +5,27 @@
 # didn't
 #
 
+mail_to="pellon@bcm.edu dc12@bcm.edu deiros@bcm.edu"
+
 help()
 {
 	echo "$1"
 	echo "Usage:"
 	echo "$0 job_name cmd"
 	exit 1
+}
+
+send_email()
+{
+  current_dir=$1
+  job_name=$2
+
+  (
+  cat <<EOF
+  pwd     : $current_dir
+  job_name: $job_name
+EOF
+  ) | mail -s "BFAST ERROR: $job_name" $mail_to
 }
 
 track_dir=`cat bf.config.yaml |\
@@ -34,5 +49,6 @@ then
 	exit 0
 else
 	touch $track_dir/$job_name.error
+  send_email `pwd` $job_name
 	exit 1
 fi
