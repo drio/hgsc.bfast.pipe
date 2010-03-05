@@ -122,8 +122,6 @@ class BfastCmd
   def local
     main_bin('localalign') + core_cmd + " -m #{match_file} > #{local_file}"
   end
-
-  # bfast postprocess -f $ref -i bfast.aligned.file.$root.baf
   # -a 3 -O 3 > bfast.reported.file.$root.sam
   def post
     main_bin('postprocess') + " -f #{ref} " + " -i #{local_file} " +
@@ -205,6 +203,18 @@ class BfastCmd
     " -Xmx6000M CaptureStatsBAM4 -o #{root_name} -t " +
     "#{@config.capture_chip_design} " +
     "-i #{bam_file_sorted_dups} -w -d"
+  end
+
+  def email_success
+    email_to  = @config.success_email_to
+    cat_files = if @config.global_input_MP == 1
+      "marked.stats.F3.txt marked.stats.R3.txt"
+    else 
+      "marked.stats.txt"
+    end
+    cmd = "cat #{cat_files} | "
+    cmd << 'mail -s \"[OK] BFast analysis completed: ' + root_name + '\"'
+    cmd << " #{email_to}"
   end
 
   private
@@ -293,7 +303,7 @@ end
 class Config
   def initialize(config)
     %w(input global match local post tobam
-       sort dups final header stats capture).each do |r|
+       sort dups final header stats capture success).each do |r|
       set config, r
     end
   end

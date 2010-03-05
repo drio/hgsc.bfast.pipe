@@ -80,3 +80,5 @@ capture_options:
  j_classpath: "/stornext/snfs1/next-gen/software/hgsc/capture_stats/sam-1.07.jar:/stornext/snfs1/next-gen/software/hgsc/capture_stats/picard-1.07.jar:/stornext/snfs1/next-gen/software/hgsc/capture_stats:."
  chip_design: "/stornext/snfs1/next-gen/software/hgsc/capture_designs/HD_exome/HD2_exome_target_region.bed.seq"
  lsf_resources: "rusage[mem=400]"
+success_options:
+ email_to: "deiros@bcm.edu driodeiros@gmail.com"

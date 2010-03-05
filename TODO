@@ -1,5 +1,18 @@
 
 DONE + run stats (and capture stats) 
-+ email with run completed
-+ add helpers dir (and  add run.analysis)
+DONE + email with run completed
+DONE + add helpers dir (and add run_analysis)
 + incorporate capture_stats in the pipeline project (Currently outside)
++ separate the lib code into multiple files (1 file per class)
++ have multiple config files instead one big one. So:
+  bf.config.yaml will become:
+  config/
+   bf.global.yaml
+   bf.match
+   bf.local
+   ....
+   bf.capture
++ running capture stats with the small datasets fails. Fix the capture
+  stats so it works with small datasets (no reads on target)
++ incorporate the capture code into the hgsc pipeline
++ fix: ./lsf_logs//run_small_test.email_sucess.32366.out 

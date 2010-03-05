@@ -78,3 +78,5 @@ stats_options:
  s_jar: /stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/BAMStats/BAMStats.jar
 capture_options:
  lsf_resources: "rusage[mem=400]"
+success_options:
+ email_to: "driodeiros@gmail.com deiros@bcm.edu"

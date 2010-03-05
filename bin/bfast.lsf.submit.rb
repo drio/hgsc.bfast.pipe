@@ -44,6 +44,7 @@ re_final  = config.final_lsf_resources
 re_header = config.header_lsf_resources
 re_stats  = config.stats_lsf_resources
 re_cap    = config.capture_lsf_resources
+re_succ   = config.sucess_email_to
 
 final_deps = []
 splits.each do |s|
@@ -79,8 +80,12 @@ end
 # Run Capture Stats
 if config.global_input_CAP == 1
   Dir.mkdir("./cap_stats")
-  lsf.add_job("capture_stats", cmds.capture_stats, "", re_cap, s_deps)
+  dep = lsf.add_job("capture_stats", cmds.capture_stats, "", re_cap, s_deps)
 end
+
+# Email if the analysis went well
+email_deps = config.global_input_CAP == 0 ? s_deps : [deps]
+lsf.add_job("email_success", cmds.email_success, "", re_succ, email_deps)
 
 lsf.create_file
 
