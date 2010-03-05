@@ -26,7 +26,7 @@ lsf = LSFDealer.new(config.input_run_name,
 	  								config.global_trackdir,
                     splits.size)
 # Prepare bfast cmd generation
-cmds   = BfastCmd.new(config, splits)
+cmds = BfastCmd.new(config, splits)
 
 # Create the rg.txt file (@RG tag)
 Misc::create_rg_file(config)
@@ -34,14 +34,17 @@ Misc::create_rg_file(config)
 # Per each split, create the basic bfast workflow with deps
 #reg_job     = "rusage[mem=4000]"
 #one_machine = "rusage[mem=28000]span[hosts=1]"
-re_match = config.match_lsf_resources
-re_local = config.local_lsf_resources
-re_post  = config.post_lsf_resources
-re_tobam = config.tobam_lsf_resources
-re_sort  = config.sort_lsf_resources
-re_dups  = config.dups_lsf_resources
-re_final = config.final_lsf_resources
+re_match  = config.match_lsf_resources
+re_local  = config.local_lsf_resources
+re_post   = config.post_lsf_resources
+re_tobam  = config.tobam_lsf_resources
+re_sort   = config.sort_lsf_resources
+re_dups   = config.dups_lsf_resources
+re_final  = config.final_lsf_resources
 re_header = config.header_lsf_resources
+re_stats  = config.stats_lsf_resources
+re_cap    = config.capture_lsf_resources
+
 final_deps = []
 splits.each do |s|
 	sn  = s.match(/\.(\d+)\./)[1]
@@ -50,8 +53,6 @@ splits.each do |s|
 	dep = lsf.add_job("local" , cmds.local   , sn, re_local , [dep])
 	dep = lsf.add_job("postp" , cmds.post    , sn, re_post  , [dep])
 	dep = lsf.add_job("tobam" , cmds.tobam   , sn, re_tobam , [dep])
-	#dep = lsf.add_job("index1", cmds.index1  , sn, reg_job    , [dep])
-	#dep = lsf.add_job("index2", cmds.index2  , sn, reg_job    , [dep])
 	lsf.blank "----------------"
 
 	final_deps << dep
@@ -64,7 +65,22 @@ dep = lsf.add_job("merge" , cmds.final_merge, "", re_final, final_deps)
 dep = lsf.add_job("sort", cmds.sort, "", re_sort, [dep])
 dep = lsf.add_job("dups", cmds.dups, "", re_dups, [dep])
 # Regenerate the header so we have better and more clear @SQ entries
-lsf.add_job("regen_bam_header", cmds.gen_header, "", re_header, [dep])
+dep = lsf.add_job("regen_bam_header", cmds.gen_header, "", re_header, [dep])
+
+# Run stats
+s_deps = []
+if config.global_input_MP == 0
+  s_deps << lsf.add_job("stats", cmds.stats_frag, "", re_stats, [dep])
+else
+  s_deps << lsf.add_job("stats_F3", cmds.stats_f3, "", re_stats, [dep])
+  s_deps << lsf.add_job("stats_R3", cmds.stats_r3, "", re_stats, [dep])
+end
+
+# Run Capture Stats
+if config.global_input_CAP == 1
+  Dir.mkdir("./cap_stats")
+  lsf.add_job("capture_stats", cmds.capture_stats, "", re_cap, s_deps)
+end
 
 lsf.create_file
 

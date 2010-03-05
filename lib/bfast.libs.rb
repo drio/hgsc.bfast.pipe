@@ -146,7 +146,8 @@ class BfastCmd
   # ./bfast.reported.file.$root.sorted
   def sort
     #"#{samtools} sort #{bam_file} #{bam_file_sorted} "
-    "java -jar -Xmx#{java_vm_mem_sort} #{picardjars}/SortSam.jar " +
+    "#{@config.global_java_vm} -jar -Xmx#{java_vm_mem_sort} " +
+    "#{picardjars}/SortSam.jar " +
     "TMP_DIR=#{@config.global_tmp_dir} " +
     "INPUT=#{merged_bam} " +
     "OUTPUT=#{bam_file_sorted} " +
@@ -154,7 +155,8 @@ class BfastCmd
   end
 
   def dups
-    "java -jar -Xmx#{java_vm_mem_dups} #{picardjars}/MarkDuplicates.jar " +
+    "#{@config.global_java_vm} -jar -Xmx#{java_vm_mem_dups} " +
+    "#{picardjars}/MarkDuplicates.jar " +
     "TMP_DIR=#{@config.global_tmp_dir} " +
     "INPUT=#{bam_file_sorted} " +
     "OUTPUT=#{bam_file_sorted_dups} " +
@@ -175,7 +177,7 @@ class BfastCmd
 
   # Regenerate the header so we have more useful information on it
   def gen_header
-    cmd = "java -jar #{@config.header_regen_jar} "
+    cmd = "#{@config.global_java_vm} -jar #{@config.header_regen_jar} "
     cmd << "type=" + @config.header_sq_type + " "
     #%w{ID PL PU LB DS DT SM CN}.each do |t|
     # t_value = eval("@config.post_rg_" + t.downcase).to_s
@@ -185,7 +187,31 @@ class BfastCmd
     cmd << "O=#{bam_file_sorted_dups_fix_header} "
   end
 
+  # computes the stats
+  def stats_frag
+    stats_core + " 3 solid > marked.stats.txt"
+  end
+
+  def stats_f3
+    stats_core + " 1 solid > marked.stats.F3.txt"
+  end
+
+  def stats_r3
+    stats_core + " 2 solid > marked.stats.R3.txt"
+  end
+
+  def capture_stats
+    "#{@config.global_java_vm} -cp #{@config.capture_j_classpath}" +
+    " -Xmx6000M CaptureStatsBAM4 -o #{root_name} -t " +
+    "#{@config.capture_chip_design} " +
+    "-i #{bam_file_sorted_dups} -w -d"
+  end
+
   private
+  
+  def stats_core
+    "#{@config.global_java_vm} -jar #{@config.stats_s_jar} #{bam_file_sorted_dups} "
+  end
 
   def java_vm_mem_dups; "#{@config.dups_java_vm_mem}"; end
 
@@ -194,7 +220,6 @@ class BfastCmd
   def merged_bam; "./output/#{root_name}.merged.bam"; end
 
   def list_bams_to_merge
-    #t = "output/SS/bfast.reported.file.#{root_name}.SS.sorted.bam"
     t = "output/SS/bfast.reported.file.#{root_name}.SS.bam"
     (1..@n_splits).inject("") {|list, s| list << t.gsub(/SS/, "split#{s}") + " " }
   end
@@ -267,7 +292,8 @@ end
 # Reads the bfast experiment config yaml and prepares config
 class Config
   def initialize(config)
-    %w(input global match local post tobam sort dups final header).each do |r|
+    %w(input global match local post tobam
+       sort dups final header stats capture).each do |r|
       set config, r
     end
   end
