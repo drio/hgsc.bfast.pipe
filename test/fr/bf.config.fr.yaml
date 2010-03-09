@@ -18,8 +18,10 @@ global_options:
  #run_dir: /stornext/snfs1/next-gen/drio-scratch/bfast_related/bf.small.test/input.very.small.bzip2
 # run_dir: /stornext/snfs1/next-gen/drio-scratch/bfast_related/bf.small.test/input.very.small.gzip
 # run_dir: /stornext/snfs1/next-gen/drio-scratch/bfast_related/bf.small.test/input
- reads_dir: /stornext/snfs1/next-gen/drio-scratch/working.copies/hgsc.bfast.pipe/test/fr/reads
- output_dir: /stornext/snfs1/next-gen/drio-scratch/working.copies/hgsc.bfast.pipe/test/fr/output
+# reads_dir: /stornext/snfs1/next-gen/drio-scratch/working.copies/hgsc.bfast.pipe/test/fr/reads
+# output_dir: /stornext/snfs1/next-gen/drio-scratch/working.copies/hgsc.bfast.pipe/test/fr/output
+ reads_dir: ./reads
+ output_dir: ./output
  tmp_dir: /space1/tmp/
  output_id: output_id_like_test_drio
  reads_per_file: 50000
@@ -79,4 +81,4 @@ stats_options:
 capture_options:
  lsf_resources: "rusage[mem=400]"
 success_options:
- email_to: "driodeiros@gmail.com deiros@bcm.edu"
+ email_to: "deiros@bcm.edu driodeiros@gmail.com" 

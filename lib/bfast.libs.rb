@@ -170,7 +170,13 @@ class BfastCmd
 
   # samtools merge out.bam in1.bam in2.bam in3.bam
   def final_merge
-    "#{samtools} merge #{merged_bam} #{list_bams_to_merge}"
+    #"#{samtools} merge #{merged_bam} #{list_bams_to_merge}"o
+    "#{@config.global_java_vm} -jar -Xmx#{java_vm_mem_dups} " +
+    "#{picardjars}/MergeSamFiles.jar " +
+    "#{list_bams_to_merge} " +
+    "TMP_DIR=#{@config.global_tmp_dir} " +
+    "OUTPUT=#{merged_bam} " +
+    "VALIDATION_STRINGENCY=SILENT "
   end
 
   # Regenerate the header so we have more useful information on it
@@ -231,7 +237,7 @@ class BfastCmd
 
   def list_bams_to_merge
     t = "output/SS/bfast.reported.file.#{root_name}.SS.bam"
-    (1..@n_splits).inject("") {|list, s| list << t.gsub(/SS/, "split#{s}") + " " }
+    (1..@n_splits).inject("") {|list, s| list << "INPUT=" + t.gsub(/SS/, "split#{s}") + " " }
   end
 
   def split_dir
