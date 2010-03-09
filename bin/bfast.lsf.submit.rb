@@ -84,7 +84,7 @@ if config.global_input_CAP == 1
 end
 
 # Email if the analysis went well
-email_deps = config.global_input_CAP == 0 ? s_deps : [deps]
+email_deps = config.global_input_CAP == 0 ? s_deps : [dep]
 lsf.add_job("email_success", cmds.email_success, "", re_succ, email_deps)
 
 lsf.create_file
