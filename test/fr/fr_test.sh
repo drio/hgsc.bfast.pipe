@@ -2,6 +2,7 @@
 # 
 set -e
 
+#Remove logs output and cluster jobs script
 rm -rf lsf_logs/ output/ cluster_JOBS.sh reads metric* track* rg.txt
 mkdir ./reads
 ../../bin/bfast.split.reads.rb ./bf.config.yaml
