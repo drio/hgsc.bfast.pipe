@@ -235,7 +235,7 @@ class BfastCmd
   end
 
   def read_val_core
-    "#{@config.global_java_vm} -jar #{@config.stats_bam_reads_val_jar} "
+    "#{@config.global_java_vm} -jar #{@config.countreads_bam_reads_val_jar} "
   end
 
   def java_vm_mem_dups; "#{@config.dups_java_vm_mem}"; end
@@ -318,7 +318,7 @@ end
 class Config
   def initialize(config)
     %w(input global match local post tobam
-       sort dups final header stats capture success).each do |r|
+       sort dups final header stats countreads capture success).each do |r|
       set config, r
     end
   end

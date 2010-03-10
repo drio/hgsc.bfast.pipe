@@ -78,6 +78,7 @@ header_options:
 stats_options:
  lsf_resources: "rusage[mem=400]"
  s_jar: /stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/BAMStats/BAMStats.jar
+countreads_options:
  bam_reads_val_jar: /stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/raw.bam.reads.validator/raw.bam.reads.validator.jar
 capture_options:
  lsf_resources: "rusage[mem=400]"
