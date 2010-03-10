@@ -211,6 +211,11 @@ class BfastCmd
     "-i #{bam_file_sorted_dups} -w -d"
   end
 
+  def bam_reads_validator
+    read_val_core + " #{bam_file_sorted_dups} #{@config.global_run_dir}" +
+    " ./output/#{root_name}.read_val_log.txt"
+  end
+
   def email_success
     email_to  = @config.success_email_to
     cat_files = if @config.global_input_MP == 1
@@ -227,6 +232,10 @@ class BfastCmd
   
   def stats_core
     "#{@config.global_java_vm} -jar #{@config.stats_s_jar} #{bam_file_sorted_dups} "
+  end
+
+  def read_val_core
+    "#{@config.global_java_vm} -jar #{@config.stats_bam_reads_val_jar} "
   end
 
   def java_vm_mem_dups; "#{@config.dups_java_vm_mem}"; end
@@ -316,7 +325,9 @@ class Config
 
   # Set all the config entries as methods for this class
   def set(config, r)
+    puts "Loading config option: #{r}_options"
     config["#{r}_options"].each do |key, value|
+      puts "loading suboption: #{r}_#{key}"
       instance_variable_set("@#{r}_#{key}", value)
     end
   end

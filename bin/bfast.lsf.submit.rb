@@ -77,6 +77,9 @@ else
   s_deps << lsf.add_job("stats_R3", cmds.stats_r3, "", re_stats, [dep])
 end
 
+# Run BAM Reads Validation
+dep = lsf.add_job("bam_reads_val", cmds.bam_reads_validator, "", re_stats, [dep])
+
 # Run Capture Stats
 if config.global_input_CAP == 1
   Dir.mkdir("./cap_stats")
