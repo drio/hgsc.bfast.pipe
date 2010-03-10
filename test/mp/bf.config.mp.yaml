@@ -81,4 +81,4 @@ capture_options:
  lsf_resources: "rusage[mem=400]"
 success_options:
  #email_to: "deiros@bcm.edu driodeiros@gmail.com"
- email_to: "niravs@bcm.edu"
+ email_to: "deiros@bcm.edu pellon@bcm.edu niravs@bcm.edu"

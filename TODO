@@ -4,6 +4,8 @@
 1 remove intermidiate directories when analysis completed
 1 running capture stats with the small datasets fails. Fix the capture
   stats so it works with small datasets (no reads on target)
+1 When testing, we use a small reference, but in the config we are pointing
+  to hsap. That makes the regen header job to take minutes instead of seconds.
 2 Add start/end walltime per job 
 2 fix: ./lsf_logs//run_small_test.email_sucess.32366.out 
 2 incorporate capture_stats code in the pipeline project (Currently outside)
