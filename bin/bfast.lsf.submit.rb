@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby19
 
 $: << File.join(File.dirname(File.dirname($0)), "lib")
-%w(bfast.libs).each { |dep| require dep }
+require 'load_libs'
 
 # Load config
 ui = UInterface.instance

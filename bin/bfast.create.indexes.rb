@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby19
 
 $: << File.join(File.dirname(File.dirname($0)), "lib")
-%w(bfast.libs).each { |dep| require dep }
+require 'load_libs'
 
 illumina_75bp_layouts = %w{
 14 1111111111111111111111
