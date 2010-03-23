@@ -4,7 +4,6 @@ prod_pipe="/stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/hgsc.bfast.pipe"
 run_process="$prod_pipe/bin/script.run.process.sh"
 config_file="./bf.config.yaml"
 rnds=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 9 | head -1 | cut -c1-5`
-queue="normal"
 lsf_logs_dir="./lsf_logs"
 
 stuff_to_clean="lsf_logs/ output/ cluster_JOBS.sh "
@@ -13,6 +12,10 @@ stuff_to_clean="$stuff_to_clean reads metric* track* rg.txt marked*.txt"
 error()
 {
   echo "ERROR: $1"
+  cat <<-EOF
+  Usage:
+  $0 <lsf queue> 
+EOF
   exit 1
 }
 
@@ -40,6 +43,8 @@ EOF
   echo ""
 }
 
+queue=$1
+[ ".$queue" == "." ] && error "What queue do I use to submit this jobs?"
 [ -f "./reads" ] && error "Reads directory exists (./reads)"
 [ ! -f $config_file ] && error "Can find config file: $config"
 
