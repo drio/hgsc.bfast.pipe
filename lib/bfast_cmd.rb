@@ -36,7 +36,13 @@ class BfastCmd
   # samtools view -bt $ref 
   # -o bfast.reported.file.$root.bam bfast.reported.file.$root.sam
   def tobam
-    "#{samtools} view -bt #{ref} -o #{bam_file} #{sam_file}"
+    #"#{samtools} view -bt #{ref} -o #{bam_file} #{sam_file}"
+    "#{@config.global_java_vm} -jar -Xmx#{java_vm_mem_to_bam} " +
+    "#{picardjars}/SamFormatConverter.jar " +
+    "TMP_DIR=#{@config.global_tmp_dir} " +
+    "INPUT=#{sam_file} " +
+    "OUTPUT=#{bam_file} " +
+    "VALIDATION_STRINGENCY=#{picard_validation}"
   end
 
   # samtools index bfast.reported.file.$root.bam
@@ -53,7 +59,7 @@ class BfastCmd
     "TMP_DIR=#{@config.global_tmp_dir} " +
     "INPUT=#{merged_bam} " +
     "OUTPUT=#{bam_file_sorted} " +
-    "SORT_ORDER=coordinate VALIDATION_STRINGENCY=SILENT"
+    "SORT_ORDER=coordinate VALIDATION_STRINGENCY=#{picard_validation}"
   end
 
   def dups
@@ -64,7 +70,7 @@ class BfastCmd
     "OUTPUT=#{bam_file_sorted_dups} " +
     "METRICS_FILE='./metric_file.picard' " +
     "VERBOSITY=ERROR " +
-    "VALIDATION_STRINGENCY=SILENT "
+    "VALIDATION_STRINGENCY=#{picard_validation}"
   end
 
   # samtools index bfast.reported.file.$root.sorted.bam
@@ -80,7 +86,7 @@ class BfastCmd
     "#{list_bams_to_merge} " +
     "TMP_DIR=#{@config.global_tmp_dir} " +
     "OUTPUT=#{merged_bam} " +
-    "VALIDATION_STRINGENCY=SILENT "
+    "VALIDATION_STRINGENCY=#{picard_validation}"
   end
 
   # Regenerate the header so we have more useful information on it
@@ -109,8 +115,9 @@ class BfastCmd
   end
 
   def capture_stats
-    "#{@config.global_java_vm} -cp #{@config.capture_j_classpath}" +
-    " -Xmx6000M CaptureStatsBAM4 -o #{root_name} -t " +
+    "#{@config.global_java_vm} -cp #{@config.capture_j_classpath} " +
+    "-Xmx6000M CaptureStatsBAM4 " +
+    "-o #{@config.capture_stats_dir}/#{root_name} -t " +
     "#{@config.capture_chip_design} " +
     "-i #{bam_file_sorted_dups} -w -d"
   end
@@ -133,7 +140,9 @@ class BfastCmd
   end
 
   private
-  
+
+  def picard_validation; "#{@config.global_picard_validation.upcase}" ;end
+
   def stats_core
     "#{@config.global_java_vm} -jar #{@config.stats_s_jar} #{bam_file_sorted_dups} "
   end
@@ -141,6 +150,8 @@ class BfastCmd
   def read_val_core
     "#{@config.global_java_vm} -jar #{@config.countreads_bam_reads_val_jar} "
   end
+
+  def java_vm_mem_to_bam; "#{@config.tobam_java_vm_mem}" ;end
 
   def java_vm_mem_dups; "#{@config.dups_java_vm_mem}"; end
 

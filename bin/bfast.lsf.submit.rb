@@ -44,7 +44,6 @@ re_final  = config.final_lsf_resources
 re_header = config.header_lsf_resources
 re_stats  = config.stats_lsf_resources
 re_cap    = config.capture_lsf_resources
-re_succ   = config.sucess_email_to
 
 final_deps = []
 splits.each do |s|
@@ -81,14 +80,15 @@ end
 dep = lsf.add_job("bam_reads_val", cmds.bam_reads_validator, "", re_stats, [dep])
 
 # Run Capture Stats
+caps_dir = config.capture_stats_dir
 if config.global_input_CAP == 1
-  Dir.mkdir("./cap_stats")
+  Dir.mkdir(caps_dir)
   dep = lsf.add_job("capture_stats", cmds.capture_stats, "", re_cap, s_deps)
 end
 
 # Email if the analysis went well
 email_deps = config.global_input_CAP == 0 ? s_deps : [dep]
-lsf.add_job("email_success", cmds.email_success, "", re_succ, email_deps)
+lsf.add_job("email_success", cmds.email_success, "", nil, email_deps)
 
 lsf.create_file
 

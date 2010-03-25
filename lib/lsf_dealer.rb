@@ -35,6 +35,7 @@ class LSFDealer
       return ""
     else
       puts "Adding #{job_name}"
+      @contents << "echo 'Submitting: #{job_name}'"
       @contents << "bsub -o #{@log_dir}/#{split_n}/#{job_name}.out \\"
       @contents << "-e #{@log_dir}/#{split_n}/#{job_name}.err \\"
       @contents << "-J #{job_name} \\"

@@ -3,7 +3,8 @@ input_options:
 global_options:
  input_MP: 0
  input_CAP: 0
- lsf_queue: normal
+ picard_validation: SILENT
+ lsf_queue: hptest
  threads: 8
  bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/versions/production/bfast
  samtools_bin: /stornext/snfs1/next-gen/software/samtools-0.1.6
@@ -59,6 +60,7 @@ post_options:
  rg_cn: Baylor
 tobam_options:
  lsf_resources: "rusage[mem=400]"
+ java_vm_mem: "1g"
 sort_options:
  lsf_resources: "rusage[mem=400]"
  # Specify how much memory we want to use in the java vm

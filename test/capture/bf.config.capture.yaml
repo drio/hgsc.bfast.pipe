@@ -3,7 +3,8 @@ input_options:
 global_options:
  input_MP: 0
  input_CAP: 1
- lsf_queue: normal
+ lsf_queue: hptest
+ picard_validation: "SILENT"
  threads: 8
  bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/versions/production/bfast
  samtools_bin: /stornext/snfs1/next-gen/software/samtools-0.1.6
@@ -57,6 +58,7 @@ post_options:
  rg_cn: Baylor
 tobam_options:
  lsf_resources: "rusage[mem=400]"
+ java_vm_mem: "1g"
 sort_options:
  lsf_resources: "rusage[mem=400]"
  # Specify how much memory we want to use in the java vm
@@ -83,6 +85,7 @@ capture_options:
  j_classpath: "/stornext/snfs1/next-gen/software/hgsc/capture_stats/sam-1.07.jar:/stornext/snfs1/next-gen/software/hgsc/capture_stats/picard-1.07.jar:/stornext/snfs1/next-gen/software/hgsc/capture_stats:."
  chip_design: "/stornext/snfs1/next-gen/software/hgsc/capture_designs/HD_exome/HD2_exome_target_region.bed.seq"
  lsf_resources: "rusage[mem=400]"
+ stats_dir: "cap_stats"
 success_options:
  #email_to: "deiros@bcm.edu driodeiros@gmail.com"
  email_to: "deiros@bcm.edu pellon@bcm.edu niravs@bcm.edu"
