@@ -3,7 +3,7 @@ input_options:
 global_options:
  input_MP: 0
  input_CAP: 0
- picard_validation: SILENT
+ picard_validation: STRICT
  lsf_queue: hptest
  threads: 8
  bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/versions/production/bfast
