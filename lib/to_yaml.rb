@@ -19,21 +19,19 @@ module ResolveDynamicKeys
   end
 end
 
-# You want a Fragment Yaml? or MP Yaml or Capture Yaml or ....
-class Y_Fragment
+# Base class representing different run types. 
+class Y_Base
   attr_accessor :input, :global
 
-  def initialize(dynamic, run_name, lsf_queue, threads, 
+  def initialize(run_name, lsf_queue, threads, 
                  fasta_file, rn_dir, output_id, sq_type)
     @sections = {}
     # input
-    @sections['input']  = YS_Input.new
-    @sections['input'].dynamic  = dynamic
+    @sections['input']          = YS_Input.new
     @sections['input'].run_name = run_name
 
     # global
-    @sections['global'] = YS_Global.new
-    @sections['global'].input_MP        = 0
+    @sections['global']                 = YS_Global.new
     @sections['global'].lsf_queue       = lsf_queue
     @sections['global'].threads         = threads
     @sections['global'].fasta_file_name = fasta_file
@@ -61,7 +59,7 @@ class Y_Fragment
     @sections['final'] = YS_Final.new
  
     #header
-    @sections['header'] = YS_Header.new
+    @sections['header']         = YS_Header.new
     @sections['header'].sq_type = sq_type
 
     # stats
@@ -69,6 +67,9 @@ class Y_Fragment
 
     # countreads
     @sections['countreads'] = YS_CountReads.new
+
+    #capture for fragment
+    @sections['capture'] = YS_Capture_FR_MP.new
 
     # success
     @sections['success'] = YS_Success.new 
@@ -81,6 +82,52 @@ class Y_Fragment
   end
 end
 
+# Class representing a fragment run type
+class Y_Fragment < Y_Base
+  attr_accessor :input, :global
+
+  def initialize(run_name, lsf_queue, threads,
+                 fasta_file, rn_dir, output_id, sq_type)
+    super(run_name, lsf_queue, threads,
+          fasta_file, rn_dir, output_id, sq_type)
+
+    @sections['global'].input_MP  = 0
+    @sections['global'].input_CAP = 0
+    @sections['capture']          = YS_Capture_FR_MP.new
+  end
+end 
+
+# Class representing a mate-pair run type
+class Y_MP < Y_Base
+  attr_accessor :input, :global
+
+  def initialize(run_name, lsf_queue, threads,
+                 fasta_file, rn_dir, output_id, sq_type)
+    super(run_name, lsf_queue, threads,
+          fasta_file, rn_dir, output_id, sq_type)
+
+    @sections['global'].input_MP  = 1
+    @sections['global'].input_CAP = 0
+    @sections['capture']          = YS_Capture_FR_MP.new
+  end
+end 
+
+# Class representing a fragment run-type with capture stats calculation
+class Y_Fr_Capture < Y_Base
+  attr_accessor :input, :global
+
+  def initialize(run_name, lsf_queue, threads,
+                 fasta_file, rn_dir, output_id, sq_type, chip_design)
+    super(run_name, lsf_queue, threads,
+          fasta_file, rn_dir, output_id, sq_type)
+
+    @sections['global'].input_MP     = 0
+    @sections['global'].input_CAP    = 1
+    @sections['capture']             = YS_Capture.new
+    @sections['capture'].chip_design = chip_design
+  end
+end 
+
 # Sections here Input, Global etc...
 class YS_Input
   include ResolveDynamicKeys
@@ -89,7 +136,6 @@ class YS_Input
   # Define your key values here... 
   def initialize
     @input_options = { 
-                        'dynamic'  => nil        ,
                         'run_name' => "run_test" ,
                      }
   end
@@ -103,28 +149,28 @@ class YS_Global
 
   def initialize
     @global_options = { 
-                        'input_MP' => 0 ,
-                        'input_CAP' => 0 ,
+                        'input_MP'          => 0 ,
+                        'input_CAP'         => 0 ,
                         'picard_validation' => "STRICT" ,
-                        'lsf_queue' => nil ,
-                        'bfast_bin' => getBfastBinary() ,
-                        'samtools_bin' => getSamtoolsBinary() , 
-                        'picardjars' => getPicardPath() ,
-                        'java_vm' => getJavaVMPath() ,
-                        'trackdir' => "./track_jobs" ,
-                        'space' => "CS" ,
-                        'fasta_file_name' => nil ,
-                        'timing' => "ON" ,
-                        'logs_dir' => "./lsf_logs" ,
-                        'run_dir' => nil ,
-                        'reads_dir'=> "./reads" ,
-                        'threads'  => 1 ,
-                        'output_dir' => "./output" ,
-                        'tmp_dir' => "/space1/tmp/" ,
-                        'output_id' => nil ,
-                        'reads_per_file' => 50000 ,
-                        'compress_input' => "none" ,
-                        'compress_splits' => "none" ,
+                        'lsf_queue'         => nil ,
+                        'bfast_bin'         => getBfastBinary() ,
+                        'samtools_bin'      => getSamtoolsBinary() , 
+                        'picardjars'        => getPicardPath() ,
+                        'java_vm'           => getJavaVMPath() ,
+                        'trackdir'          => "./track_jobs" ,
+                        'space'             => "CS" ,
+                        'fasta_file_name'   => nil ,
+                        'timing'            => "ON" ,
+                        'logs_dir'          => "./lsf_logs" ,
+                        'run_dir'           => nil ,
+                        'reads_dir'         => "./reads" ,
+                        'threads'           => 1 ,
+                        'output_dir'        => "./output" ,
+                        'tmp_dir'           => "/space1/tmp/" ,
+                        'output_id'         => nil ,
+                        'reads_per_file'    => 50000 ,
+                        'compress_input'    => "none" ,
+                        'compress_splits'   => "none" ,
                       }
   end
 
@@ -151,7 +197,7 @@ class YS_Match
 
   def initialize
     @match_options = {
-                       'threads' => 8 ,
+                       'threads'       => 8 ,
                        'lsf_resources' => "rusage[mem=280]" ,
                      }
   end
@@ -162,7 +208,7 @@ class YS_Local
 
   def initialize
     @local_options = {
-                       'threads' => 8 ,
+                       'threads'       => 8 ,
                        'lsf_resources' => "rusage[mem=280]" ,
                      }
   end
@@ -174,23 +220,24 @@ class YS_Post
 
   def initialize
     @post_options = {
-                      'algorithm' => 4 ,
+                      'algorithm'     => 4 ,
                       'lsf_resources' => "rusage[mem=400]" ,
-                      'rg_id' => "TODO_RGID" ,
-                      'rg_pl' => "SOLiD" ,
-                      'rg_pu' => "TODO_PU" ,
-                      'rg_lb' => "TODO_RG_LIB" ,
-                      'rg_ds' => "TODO_RG_DESC" ,
-                      'rg_dt' => getCurrentTime() ,
-                      'rg_sm' => "TODO_RG_SM" ,
-                      'rg_cn' => "Baylor" ,
+                      'rg_id'         => "TODO_RGID" ,
+                      'rg_pl'         => "SOLiD" ,
+                      'rg_pu'         => "TODO_PU" ,
+                      'rg_lb'         => "TODO_RG_LIB" ,
+                      'rg_ds'         => "TODO_RG_DESC" ,
+                      'rg_dt'         => getCurrentTime() ,
+                      'rg_sm'         => "TODO_RG_SM" ,
+                      'rg_cn'         => "Baylor" ,
                     }
   end
  
   def getCurrentTime()
-    #time = Time.new
-    #return time.inspect
-    return "TODO_GET_DATE"
+    time = Time.new
+    formatTime = time.strftime("%Y-%m-%dT%H:%M:%S") +
+    (time.utc_offset / 3600).to_s
+    return formatTime
   end
 end
 
@@ -200,7 +247,7 @@ class YS_ToBAM
   def initialize
     @tobam_options = {
                       'lsf_resources' => "rusage[mem=400]" ,
-                      'java_vm_mem' => "1g" ,
+                      'java_vm_mem'   => "1g" ,
                     }
   end
 end
@@ -211,7 +258,7 @@ class YS_Sort
   def initialize
     @sort_options = {
                       'lsf_resources' => "rusage[mem=400]" ,
-                      'java_vm_mem' => "1g" ,
+                      'java_vm_mem'   => "1g" ,
                     }
   end
 end
@@ -222,12 +269,13 @@ class YS_Dup
   def initialize
     @dups_options = {
                       'lsf_resources' => "rusage[mem=400]" ,
-                      'java_vm_mem' => "1g"
+                      'java_vm_mem'   => "1g"
                     }
   end
 end
 
 class YS_Final
+  include ResolveDynamicKeys
   attr_accessor :final_options
  
   def initialize
@@ -243,7 +291,7 @@ class YS_Header
 
   def initialize
     @header_options = {
-                        'regen_jar' => buildJarName() ,
+                        'regen_jar'      => buildJarName() ,
                         'lsf_resources'  => "rusage[mem=400]" ,
                       }
   end
@@ -261,7 +309,7 @@ class YS_Stats
   def initialize
     @stats_options = {
                        'lsf_resources' => "rusage[mem=400]" ,
-                       's_jar' => buildJarName() ,
+                       's_jar'         => buildJarName() ,
                      }
   end
 
@@ -289,16 +337,17 @@ class YS_CountReads
   end
 end
 
+# Actual capture class to be used for capture tests.
 class YS_Capture
   include ResolveDynamicKeys
   attr_accessor :capture_options
 
   def initialize
   @capture_options = {
-                       'j_classpath' => buildClassPath() ,
-                       'chip_design' => nil ,
+                       'j_classpath'    => buildClassPath() ,
+                       'chip_design'    => nil ,
                        'lsf_resources'  => "rusage[mem=400]" ,
-                       'stats_dir' => "cap_stats" ,
+                       'stats_dir'      => "cap_stats" ,
                      }
   end
 
@@ -308,6 +357,19 @@ class YS_Capture
     capPath = "/stornext/snfs1/next-gen/software/hgsc/capture_stats"
     return samPath + ":" + picPath + ":"  + capPath + ":."
  end
+end
+
+# Class to be used for capture options when capture is not actually required
+# under fragment or mate pair scenarios. This class required to prevent
+# config.rb from complaining that it did not find capture_options.
+class YS_Capture_FR_MP
+  attr_accessor :capture_options
+ 
+  def initialize
+    @capture_options = {
+                         'lsf_resources' => "rusage[mem=400]" ,
+                       }
+  end
 end
 
 # Class representing success option
@@ -321,5 +383,3 @@ class YS_Success
                      }
   end
 end
-# y = Y_Fragment.new("great stuff", 1)
-# puts y.dump
