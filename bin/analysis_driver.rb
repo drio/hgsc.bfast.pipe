@@ -12,21 +12,38 @@
 #  For help use: analysis_driver.rb -h
 #
 #== Options
-#   -h, --help          Displays help message
-#   -v, --version       Display the version, then exit
-#   -q, --quiet         Output as little as possible, overrides verbose
-#   -V, --verbose       Verbose output
-#   -r, --run_name      Run_name
-#   -c, --c_design      capture_design
-#   -t, --se_type       sequence eventy type
-#   -q, --queue         cluster queue
-#   -a, --action        action to perform 
+# -h, --help          Displays help message
+# -v, --version       Display the version, then exit
+# -q, --quiet         Output as little as possible, overrides verbose
+# -V, --verbose       Verbose output
+# -r, --run_name      Run_name
+# -c, --c_design      capture_design
+# -t, --se_type       sequence eventy type
+# -q, --queue         cluster queue
+# -a, --action        action to perform 
+#
+# Valid actions:
+#   clean_dir  : remove an analysis directory
+#                $ analysis_driver.rb -a clean_dir -r RUN
+#
+#   create_only: create the analysis dir and config file
+#                $ analysis_driver.rb -a create_only -r RUN -t MP
+#                $ analysis_driver.rb -a create_only -r RUN -t FR 
+#                $ analysis_driver.rb -a create_only -r RUN -t FR -C C_DESIGN_DIR
+#
+#   check_dir  : check if analysis exists
+#                $ analysis_driver.rb -a check_dir -r RUN
+#
+#   validate   : validate analysis directory
+#                $ analysis_driver.rb -a validate_dir -r RUN 
 #
 require 'optparse' 
 require 'rdoc/usage'
 require 'ostruct'
 require 'date'
 require 'logger'
+
+require 'load_libs'
 
 #
 # vim: set filetype=ruby expandtab tabstop=2 shiftwidth=2 tw=80 
@@ -37,9 +54,10 @@ class App
   attr_reader :options
 
   def initialize(arguments, stdin)
-    @arguments       = arguments
-    @stdin           = stdin
-    @logger          = Logger.new(STDERR)
+    @arguments     = arguments
+    @stdin         = stdin
+    @logger        = Logger.new(STDERR)
+    @valid_actions = /(clean_dir|create_only|check_dir|validate)/
 
     # Set defaults
     @options         = OpenStruct.new
@@ -51,7 +69,7 @@ class App
   # Parse options, check arguments, then process the command
   def run
     if parsed_options? && arguments_valid?
-      log "Start at #{DateTime.now}\n\n"
+      log "Start at #{DateTime.now}\n"
       output_options if @options.verbose
 
       process_arguments
@@ -78,30 +96,34 @@ class App
       opts.on('-q', '--queue    q')   {|q| @options.queue    = q }
       opts.on('-a', '--action   a')   {|a| @options.action   = a }
             
+      log "Processing arguments"
       opts.parse!(@arguments) rescue return false
+      log "Parsing options"
       process_options
       true
     end
 
     # Performs post-parse processing on options
     def process_options
-      #@options.verbose = false if @options.quiet
+      @options.verbose = false if @options.quiet
     end
     
     def output_options
-      @options.marshal_dump.each {|name, val| puts "#{name} = #{val}" }
+      @options.marshal_dump.each {|name, val| log "param: #{name} = #{val}" }
     end
 
     # True if required arguments were provided
     def arguments_valid?
-      true if @options.run_name && @options.c_design
-              @options.se_type  && @options.queue
-              @options.action   
+      return true
     end
-    
-    # Setup the arguments
+
+    # Place arguments in instance variables
     def process_arguments
-      # TO DO - place in local vars, etc
+      @r_name   = @options.run_name
+      @c_design = @options.c_design
+      @se_type  = @options.se_type
+      @queue    = @options.queue
+      @action   = @options.action
     end
     
     def output_help
@@ -118,9 +140,8 @@ class App
     end
     
     def process_command
-      # TO DO - do whatever this app does
-      puts "Show time .." 
-      #process_standard_input # [Optional]
+      error "Not valid action" unless @action =~ @valid_actions
+      puts Driver_actions.new(@action, @logger).get_action.run
     end
 
     def process_standard_input
@@ -135,6 +156,10 @@ class App
 
     def log(msg)
       @logger.info msg.chomp if @options.verbose     
+    end
+
+    def error(msg)
+      $stderr.puts msg; exit 1
     end
 end
 
