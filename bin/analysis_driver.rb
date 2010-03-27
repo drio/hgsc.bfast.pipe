@@ -1,52 +1,17 @@
 #!/usr/bin/env ruby
 #
-#== Synopsis 
-# This script is the entry point to perform bfast analysis   
-#
-#== Examples
-# analysis_driver.rb -run_name RUN -c CAP -t FR -q normal -a clean
-#
-#== Usage 
-#  analysis_driver.rb [options]
-#
-#  For help use: analysis_driver.rb -h
-#
-#== Options
-# -h, --help          Displays help message
-# -v, --version       Display the version, then exit
-# -q, --quiet         Output as little as possible, overrides verbose
-# -V, --verbose       Verbose output
-# -r, --run_name      Run_name
-# -c, --c_design      capture_design
-# -t, --se_type       sequence eventy type
-# -q, --queue         cluster queue
-# -a, --action        action to perform 
-#
-# Valid actions:
-#   clean_dir  : remove an analysis directory
-#                $ analysis_driver.rb -a clean_dir -r RUN
-#
-#   create_only: create the analysis dir and config file
-#                $ analysis_driver.rb -a create_only -r RUN -t MP
-#                $ analysis_driver.rb -a create_only -r RUN -t FR 
-#                $ analysis_driver.rb -a create_only -r RUN -t FR -C C_DESIGN_DIR
-#
-#   check_dir  : check if analysis exists
-#                $ analysis_driver.rb -a check_dir -r RUN
-#
-#   validate   : validate analysis directory
-#                $ analysis_driver.rb -a validate_dir -r RUN 
+# vim: set filetype=ruby expandtab tabstop=2 shiftwidth=2 tw=80 
+# 
+# Main entry point to perform bfast analysis 
 #
 require 'optparse' 
-require 'rdoc/usage'
 require 'ostruct'
 require 'date'
 require 'logger'
 
+$: << File.join(File.dirname(File.dirname($0)), "lib")
 require 'load_libs'
 
-#
-# vim: set filetype=ruby expandtab tabstop=2 shiftwidth=2 tw=80 
 #
 class App
   VERSION = '0.0.1'
@@ -132,7 +97,7 @@ class App
     end
     
     def output_usage
-      RDoc::usage('usage') # gets usage from comments above
+      puts DATA.read
     end
     
     def output_version
@@ -159,10 +124,39 @@ class App
     end
 
     def error(msg)
-      $stderr.puts msg; exit 1
+      $stderr.puts "ERROR: " + msg + "\n\n"; output_usage; exit 1
     end
 end
 
 # Create and run the application
 app = App.new(ARGV, STDIN)
 app.run
+
+__END__
+Usage: 
+  analysis_driver.rb [options]
+
+Options:
+ -h, --help          Displays help message
+ -v, --version       Display the version, then exit
+ -q, --quiet         Output as little as possible, overrides verbose
+ -V, --verbose       Verbose output
+ -r, --run_name      Run_name
+ -c, --c_design      capture_design
+ -t, --se_type       sequence eventy type
+ -q, --queue         cluster queue
+ -a, --action        action to perform 
+
+Valid actions:
+ clean_dir  : remove an analysis directory
+              $ analysis_driver.rb -a clean_dir -r RUN
+
+ create_only: create the analysis dir and config file
+              $ analysis_driver.rb -a create_only -r RUN -t MP
+              $ analysis_driver.rb -a create_only -r RUN -t FR 
+              $ analysis_driver.rb -a create_only -r RUN -t FR -C C_DESIGN_DIR
+
+ check_dir  : check if analysis exists
+              $ analysis_driver.rb -a check_dir -r RUN
+
+ validate   : validate analysis directory

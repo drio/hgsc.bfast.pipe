@@ -1,4 +1,5 @@
 
+1 Singleton for logger ... instead of passing around the log object
 1 add a check in the split process to make sure the number of reads splitted
   matches the original raw data
 1 remove intermidiate directories when analysis completed

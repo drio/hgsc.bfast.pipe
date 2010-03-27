@@ -35,7 +35,7 @@ class Driver_actions
     a_files   = Dir[File.join(a_lib_dir, "*.rb")]
 
     Dir[File.join(a_lib_dir, "*.rb")].each do |file|
-      f   = a_lib_dir + "/" + File.basename(file.gsub(/\.rb$/,''))
+      f = a_lib_dir + "/" + File.basename(file.gsub(/\.rb$/,''))
       @log.info "Loading action: #{f}"
       require f
     end
