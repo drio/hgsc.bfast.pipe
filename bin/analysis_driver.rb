@@ -113,7 +113,6 @@ class App
       input = @stdin.read      
       # TO DO - process input
       
-      # [Optional]
       # @stdin.each do |line| 
       #  # TO DO - process each line
       #end
