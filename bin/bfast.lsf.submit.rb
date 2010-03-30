@@ -29,7 +29,7 @@ lsf = LSFDealer.new(config.input_run_name,
 cmds = BfastCmd.new(config, splits)
 
 # Create the rg.txt file (@RG tag)
-Misc::create_rg_file(config)
+#Misc::create_rg_file(config)
 
 # Per each split, create the basic bfast workflow with deps
 #reg_job     = "rusage[mem=4000]"
@@ -65,7 +65,7 @@ dep = lsf.add_job("merge" , cmds.final_merge, "", re_final, final_deps)
 dep = lsf.add_job("sort", cmds.sort, "", re_sort, [dep])
 dep = lsf.add_job("dups", cmds.dups, "", re_dups, [dep])
 # Regenerate the header so we have better and more clear @SQ entries
-dep = lsf.add_job("regen_bam_header", cmds.gen_header, "", re_header, [dep])
+#dep = lsf.add_job("regen_bam_header", cmds.gen_header, "", re_header, [dep])
 
 # Run stats
 s_deps = []

@@ -29,7 +29,11 @@ class BfastCmd
   # -a 3 -O 3 > bfast.reported.file.$root.sam
   def post
     main_bin('postprocess') + " -f #{ref} " + " -i #{local_file} " +
-    "-a 3 -O 3 -r #{Misc::RG_FNAME} > #{sam_file}"
+    "-a 3 -O 3 > #{sam_file}"
+
+    ## If you want RG tag
+    ##"-a 3 -O 3 -r #{Misc::RG_FNAME} > #{sam_file}"
+
     #"-n 8 -a 3 -O 3 > #{sam_file}"
   end
 
