@@ -1,4 +1,6 @@
 
+1 make the list of users in run process script dynamic (pull from config)
+1 complain if analysis is capture but we don't have chip design
 1 Singleton for logger ... instead of passing around the log object
 1 add a check in the split process to make sure the number of reads splitted
   matches the original raw data
