@@ -1,6 +1,5 @@
 class Driver_actions
-  def initialize(action_string, logger)
-    @log      = logger
+  def initialize(action_string)
     @a_string = action_string
     load_actions
   end
@@ -15,11 +14,14 @@ class Driver_actions
   #
   def create_action
     case @a_string
-      when "clean_dir"
-        @log.info "Instanciating Action: clean_dir"
-        A_clean_dir.new
-      else 
-        puts "ERROR: can find action: #{@a_string}"
+      when "sea_create"
+        Helpers::log "Instanciating Action: #{@a_string}"
+        SEA_create.new
+      when "sea_remove"
+        Helpers::log "Instanciating Action: #{@a_string}"
+        SEA_remove.new
+      else
+        Helpers::log("ERROR: can find action: #{@a_string}", 1)
         exit 1
     end
   end
@@ -36,7 +38,7 @@ class Driver_actions
 
     Dir[File.join(a_lib_dir, "*.rb")].each do |file|
       f = a_lib_dir + "/" + File.basename(file.gsub(/\.rb$/,''))
-      @log.info "Loading action: #{f}"
+      Helpers::log "Loading action: #{f}"
       require f
     end
   end
