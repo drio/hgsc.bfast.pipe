@@ -17,11 +17,11 @@ Currently (work in progress to clean up)
 
 /stornext/snfs1/next-gen/solid
   analysis/             : (2)
-  capture_stats/        : (D)
+  capture_stats/        : (M)
   cmaps/                : references for corona_lite
-  egenotype_scratch/    : (D) 
+  egenotype_scratch/    : (M) 
   hgsc.solid.pipeline/  : repository for SOLiD pipeline code/projects
-  reference/            : (D)
+  reference/            : (M)
   results/              : (1)
   solid_offline/        : (?) links to analysis based on SE name
   solid_runs/           : (?) links to raw data based on SE name
@@ -30,13 +30,13 @@ Currently (work in progress to clean up)
 /stornext/snfs4/next-gen/solid
   analysis/             : (2)
   bf.references/        : references for Bfast. One single place (this one)
-  capture_stats/        : (D)
+  capture_stats/        : (M)
   merged_bams/          : (3)
   results/              : (1)
   solid.bf.references/  : (D)
   solid_snps/           : (4)
 
-D : delete, clean up, not needed (we can move to another location if we 
+M : delete, clean up, not needed (we can move to another location if we 
     don't want to remove)
 \d: A detailed explanation follows.
 
