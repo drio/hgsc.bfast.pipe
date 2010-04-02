@@ -1,4 +1,5 @@
 
+1 move config stuff found in Helpers module to etc/ ?
 1 user the queue parameters to change queue in config
 1 lsf resources are currently hardcoded
 1 make the list of users in run process script dynamic (pull from config)
