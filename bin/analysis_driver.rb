@@ -72,13 +72,13 @@ class App
 
     # True if required arguments were provided
     def arguments_valid?
-      return true
+      true
     end
 
     # Place arguments in instance variables
     def process_arguments
       @r_name   = @options.run_name
-      @sea      = Sequence_event.new(@r_name)
+      @sea      = @r_name.nil? ? nil : Sequence_event.new(@r_name)
       @c_design = @options.c_design || nil
       @queue    = @options.queue    || "normal"
       @action   = @options.action
