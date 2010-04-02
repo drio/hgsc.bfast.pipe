@@ -21,7 +21,7 @@ class SEA_remove
       Helpers::log("SEA dir not found", 1)
     else
       sea_dir = Helpers::a_dir_for(sea)
-      Helpers::log "SEA dir found : #{sea_dir}"
+      Helpers::log "SEA dir found : #{sea_dirs_found[0]}"
     end
 
     # B. Look for jobs for that SEA and kill them
@@ -29,7 +29,7 @@ class SEA_remove
 
     # C. Remove the dir
     puts Helpers::kill_jobs_for(sea)
-    puts Helpers::remove_dir(sea_dir)
+    puts Helpers::remove_dir(sea_dirs_found[0])
     Helpers::log "Done."
   end
 end

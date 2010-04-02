@@ -26,3 +26,23 @@ class Config
     eval "@#{m}"
   end
 end
+
+class Yaml_template
+  def initialize
+    bin_dir  = File.dirname($0)
+    main_dir = File.dirname(bin_dir)
+    etc_dir  = File.join(main_dir, "etc")
+    tf_name  = etc_dir + "/template.yaml"
+
+    unless File.exists?(tf_name)
+      Helpers::log("Couldn't load Yaml template: #{tf_name}") 
+    end 
+    
+    Helpers::log "loadind template: #{tf_name}"
+    @template = File.open(tf_name).read
+  end
+
+  def to_s
+    @template
+  end
+end
