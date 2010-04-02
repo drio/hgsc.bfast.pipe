@@ -6,6 +6,8 @@ require 'fileutils'
 
 module Helpers
 
+  # TO DO: This has to by dynamic.
+  # 
   SNFS             = %w(1 4).freeze
   L1_DIR           = `uname`.chomp == "Darwin" ? "tmp" : "stornext"
   SEA_DIR_TEMPLATE = "/#{L1_DIR}/snfsSS/next-gen/solid/analysis/solidII"
@@ -19,21 +21,15 @@ module Helpers
     exit bye.to_i if bye != 0
   end
 
+  # Look in all the SEA dirs to see if we can find a SEA dir with 
+  # that name
   def self.dir_exists?(sea)
     found = []
     SNFS.each do |s|
-      path = SEA_DIR_TEMPLATE.gsub(/SS/, s).gsub(/II/, sea.instrument)
-      log("I can't find #{path}", 1) unless File.exists?(path)
-      re = %r{ ^#{path}/\d+/\d+/#{sea}$ }
-      Find.find(path) do |p|
-        #sea_dir = a_dir_for(sea)
-        #found << p if p == sea_dir and File.directory?(sea_dir)
-        puts ""
-        puts re
-        puts "-#{p}-"
-        puts ""
-        found << p if p =~ re and File.directory?(p)
-      end
+      i_dir = SEA_DIR_TEMPLATE.gsub(/SS/, s).gsub(/II/, sea.instrument)
+      log("I can't find #{i_dir}", 1) unless File.exists?(i_dir)
+      re = %r{ ^#{i_dir}/\d+/\d+/#{sea}$ }x
+      Find.find(i_dir) {|p| found << p if p =~ re and File.directory?(p) }
     end
 
     found
