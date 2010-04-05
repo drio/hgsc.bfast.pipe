@@ -10,8 +10,9 @@ chip_design =  "/stornext/snfs1/next-gen/software/hgsc/capture_designs" +
 
 def usage()
   puts "Usage:"
-  puts "ruby19 generate_yaml.rb test_type"
-  puts "  test_type : mp, fr, cap"
+  puts "ruby19 " + __FILE__ + " test_type"
+  puts "  test_type : Type of test"
+  puts "              Allowed Values : mp, fr, cap"
   exit 1
 end
 
