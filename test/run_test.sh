@@ -23,7 +23,7 @@ test_type=`echo $1 | tr [:upper:] [:lower:]`
 rm -rf $test_type
 
 mkdir -p $test_type
-cp "generate_"$test_type"_yaml.rb" $test_type
+cp generate_yaml.rb $test_type
 
 cd $test_type
 rm -rf lsf_logs/ output/ cluster_JOBS.sh reads metric* track* rg.txt marked*.txt
@@ -31,7 +31,8 @@ rm -rf lsf_logs/ output/ cluster_JOBS.sh reads metric* track* rg.txt marked*.txt
 mkdir ./reads
 mkdir ./track_jobs
 echo "Generating YAML"
-ruby "generate_"$test_type"_yaml.rb" | grep -v "ruby/object" > bf.config.yaml
+
+ruby19 "generate_yaml.rb" $test_type 
 
 ../../bin/bfast.split.reads.rb ./bf.config.yaml
 ../../bin/bfast.lsf.submit.rb ./bf.config.yaml
