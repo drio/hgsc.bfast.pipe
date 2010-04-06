@@ -10,8 +10,8 @@ chip_design  = "/stornext/snfs1/next-gen/software/hgsc/capture_designs" +
 
 def fix_for_test(bf_config)
   bf_config.gsub!(/\/h\/hsap.36.1.hg18\/hsap_36.1_hg18.fa/, "/t/test/test.fa")
-  %{28000 8000 4000}.each {|n| bf_config.gsub!(/#{n}/, "400") }
-  %{8g 4g}.each           {|n| bf_config.gsub!(/#{n}/, "1g") }
+  %w{28000 8000 4000}.each {|n| bf_config.gsub!(/#{n}/, "400") }
+  %w{8g 4g}.each           {|n| bf_config.gsub!(/#{n}/, "1g") }
 end
 
 def usage()
