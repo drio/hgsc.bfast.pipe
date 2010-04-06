@@ -16,12 +16,12 @@ def fix_for_test(bf_config)
 
   bf_config.gsub!(/regen_jar:.+$/,
                   "regen_jar: #{c_path}" + 
-                  "/java/bam.header.creation/bam.header.creation.jar\n")
+                  "/java/bam.header.creation/bam.header.creation.jar")
   bf_config.gsub!(/s_jar:.+$/,
-                  "s_jar: #{c_path}/java/BAMStats/BAMStats.jar\n")
+                  "s_jar: #{c_path}/java/BAMStats/BAMStats.jar")
   bf_config.gsub!(/bam_reads_val_jar:.+$/,
                   "s_jar: #{c_path}" + 
-                  "/java/raw.bam.reads.validator/raw.bam.reads.validator.jar\n")
+                  "/java/raw.bam.reads.validator/raw.bam.reads.validator.jar")
   bf_config
 end
 
