@@ -1,18 +1,10 @@
 
-1 move config stuff found in Helpers module to etc/ ?
 1 user the queue parameters to change queue in config
-1 lsf resources are currently hardcoded
 1 make the list of users in run process script dynamic (pull from config)
 1 complain if analysis is capture but we don't have chip design
-1 Singleton for logger ... instead of passing around the log object
-1 add a check in the split process to make sure the number of reads splitted
-  matches the original raw data
 1 remove intermidiate directories when analysis completed
 1 running capture stats with the small datasets fails. Fix the capture
   stats so it works with small datasets (no reads on target)
-1 When testing, we use a small reference, but in the config we are pointing
-  to hsap. That makes the regen header job to take minutes instead of seconds.
-2 Add start/end walltime per job 
 2 fix: ./lsf_logs//run_small_test.email_sucess.32366.out 
 2 incorporate capture_stats code in the pipeline project (Currently outside)
 2 separate the lib code into multiple files (1 file per class)
@@ -25,6 +17,12 @@
    ....
    bf.capture
 
+DONE + When testing, we use a small reference, but in the config we are pointing
+       to hsap. That makes the regen header job to take minutes instead of seconds.
+DONE + add a check in the split process to make sure the number of reads splitted
+       matches the original raw data
+DONE + 1 lsf resources are currently hardcoded
+DONE + move config stuff found in Helpers module to etc/ ?
 DONE + run stats (and capture stats) 
 DONE + email with run completed
 DONE + add helpers dir (and add run_analysis)
