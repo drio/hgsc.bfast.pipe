@@ -1,4 +1,3 @@
-
 1 user the queue parameters to change queue in config
 1 make the list of users in run process script dynamic (pull from config)
 1 complain if analysis is capture but we don't have chip design
@@ -7,16 +6,9 @@
   stats so it works with small datasets (no reads on target)
 2 fix: ./lsf_logs//run_small_test.email_sucess.32366.out 
 2 incorporate capture_stats code in the pipeline project (Currently outside)
-2 separate the lib code into multiple files (1 file per class)
-2 have multiple config files instead one big one. So:
-  bf.config.yaml will become:
-  config/
-   bf.global.yaml
-   bf.match
-   bf.local
-   ....
-   bf.capture
 
+DONE + separate the lib code into multiple files (1 file per class)
+DONE + have multiple config files instead one big one.
 DONE + When testing, we use a small reference, but in the config we are pointing
        to hsap. That makes the regen header job to take minutes instead of seconds.
 DONE + add a check in the split process to make sure the number of reads splitted
