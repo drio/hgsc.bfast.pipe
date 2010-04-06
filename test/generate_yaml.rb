@@ -12,6 +12,7 @@ def fix_for_test(bf_config)
   bf_config.gsub!(/\/h\/hsap.36.1.hg18\/hsap_36.1_hg18.fa/, "/t/test/test.fa")
   %w{28000 8000 4000}.each {|n| bf_config.gsub!(/#{n}/, "400") }
   %w{8g 4g}.each           {|n| bf_config.gsub!(/#{n}/, "1g") }
+  bf_config
 end
 
 def usage()
