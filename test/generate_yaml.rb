@@ -5,8 +5,14 @@ require '../../lib/helpers.rb'
 
 test_run_dir = "/stornext/snfs1/next-gen/drio-scratch/bfast_related/" +
                "bf.pipeline.data.test/plain.fr.very.small.data" 
-chip_design =  "/stornext/snfs1/next-gen/software/hgsc/capture_designs" +
+chip_design  = "/stornext/snfs1/next-gen/software/hgsc/capture_designs" +
                "/HD_exome/HD2_exome_target_region.bed.seq"
+
+def fix_for_test(bf_config)
+  bf_config.gsub!(/\/h\/hsap.36.1.hg18\/hsap_36.1_hg18.fa/, "/t/test/test.fa")
+  %{28000 8000 4000}.each {|n| bf_config.gsub!(/#{n}/, "400") }
+  %{8g 4g}.each           {|n| bf_config.gsub!(/#{n}/, "1g") }
+end
 
 def usage()
   puts "Usage:"
@@ -38,9 +44,8 @@ bf_config.gsub!(/__OUTPUT_DIR__/, "./output")
 bf_config.gsub!(/__CD__/        , test_type.eql?("cap") ? chip_design : "" )
 
 # Change the reference from human to test reference to speed up
-# BAM generation.
-bf_config.gsub!(/\/h\/hsap.36.1.hg18\/hsap_36.1_hg18.fa/,
-                "/t/test/test.fa")
+# BAM generation. Also, change the LSF usage mode
+bf_config = fix_for_test(bf_config)
 
 # Write the config yaml file to the test/{mp, fr, cap} directory
 Dir.chdir(pwd)
