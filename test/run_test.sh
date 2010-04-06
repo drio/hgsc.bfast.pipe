@@ -26,7 +26,6 @@ mkdir -p $test_type
 cp generate_yaml.rb $test_type
 
 cd $test_type
-rm -rf lsf_logs/ output/ cluster_JOBS.sh reads metric* track* rg.txt marked*.txt
 
 mkdir ./reads
 mkdir ./track_jobs
