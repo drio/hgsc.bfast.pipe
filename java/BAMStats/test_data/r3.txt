@@ -1,0 +1,18 @@
+
+BAM/SAM File : /stornext/snfs1/next-gen/niravs-scratch/samplepipeline/bam_stats/markedbam2.bam
+Read Type    : Fragment
+
+Total Reads in file        : 164,348,800
+
+Number of Reads considered : 963,244
+Mapped Reads               : 423,155
+Mapped Reads Percentage    : 43.93% 
+Throughput                 : 20,632,950 bp
+
+Duplicate Reads            : 41,865
+Uniquely Mapped Reads      : 381,290
+Uniqueness Percentage      : 90.11% 
+Effective Throughput       : 18,587,075 bp
+
+Computation Time      : 746.896 sec
+

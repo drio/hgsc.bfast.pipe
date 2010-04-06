@@ -1,0 +1,40 @@
+java -jar BAMStats.jar /stornext/snfs4/next-gen/solid/analysis/solid0301/0301_20091103_1_SP_ANG_HSAP_NG_003sA_01003244545_4/0301_20091103_1_SP_ANG_HSAP_NG_003sA_01003244545_4.merged.bam 1
+196000000
+BAM/SAM File :
+/stornext/snfs4/next-gen/solid/analysis/solid0301/0301_20091103_1_SP_ANG_HSAP_NG_003sA_01003244545_4/0301_20091103_1_SP_ANG_HSAP_NG_003sA_01003244545_4.merged.bam
+Read Type    : Read 1
+
+Total Reads in file        : 196,442,549
+
+Number of Reads considered : 96,632,448
+Mapped Reads               : 57,804,740
+Mapped Reads Percentage    : 59.82%
+Throughput                 : 2,890,237,000 bp
+
+Duplicate Reads            : 0
+Uniquely Mapped Reads      : 57,804,740
+Uniqueness Percentage      : 100.00%
+Effective Throughput       : 2,890,237,000 bp
+
+Computation Time      : 1089.676 sec
+
+java -jar BAMStats.jar /stornext/snfs4/next-gen/solid/analysis/solid0301/0301_20091103_1_SP_ANG_HSAP_NG_003sA_01003244545_4/0301_20091103_1_SP_ANG_HSAP_NG_003sA_01003244545_4.merged.bam 2
+196000000
+BAM/SAM File :
+/stornext/snfs4/next-gen/solid/analysis/solid0301/0301_20091103_1_SP_ANG_HSAP_NG_003sA_01003244545_4/0301_20091103_1_SP_ANG_HSAP_NG_003sA_01003244545_4.merged.bam
+Read Type    : Read 2
+
+Total Reads in file        : 196,442,549
+
+Number of Reads considered : 96,632,448
+Mapped Reads               : 10,290,978
+Mapped Reads Percentage    : 10.65%
+Throughput                 : 257,274,450 bp
+
+Duplicate Reads            : 0
+Uniquely Mapped Reads      : 10,290,978
+Uniqueness Percentage      : 100.00%
+Effective Throughput       : 257,274,450 bp
+
+Computation Time      : 1007.285 sec
+

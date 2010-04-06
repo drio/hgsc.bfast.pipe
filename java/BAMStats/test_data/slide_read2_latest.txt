@@ -1,0 +1,18 @@
+
+BAM/SAM File : /stornext/snfs1/next-gen/solid/solid_offline/0441_20091015_2_SL_AWG_TG_NA19146_000pA_01003244518_1/0441_20091015_2_SL_AWG_TG_NA19146_000pA_01003244518_1.merged.marked.bam
+Read Type    : Read 2
+
+Total Reads in file        : 1,021,406,445
+
+Number of Reads considered : 510,359,929
+Mapped Reads               : 359,117,504
+Mapped Reads Percentage    : 70.37% 
+Throughput                 : 17,955,875,200 bp
+
+Duplicate Reads            : 63,901,299
+Uniquely Mapped Reads      : 295,216,205
+Uniqueness Percentage      : 82.21% 
+Effective Throughput       : 14,760,810,250 bp
+
+Computation Time      : 5207.659 sec
+
