@@ -33,12 +33,19 @@ def load_pending(g_url)
   g_url ||= "http://spreadsheets.google.com/" +
             "pub?key=0AiinUSoGtvz7dHZpd1E2cjJGYzVpbkYwN2pYWXQyb2c&gid=2" +
             "&output=csv"
+  entries_processed = 0
 
+  # Iterate over all the lines
   load_csv_pending(g_url).each_with_index do |e,i|
+
     r_name, s_name, prj, c_design, type, pty, d_added, comments = e
     sea_name = "#{r_name}_#{s_name}".force_encoding('ASCII-8BIT')
     Helpers::log("+ loading (#{i}): #{sea_name}")
+
+    # Insert the SEA
     M_helpers::add OpenStruct.new({:name  => sea_name })
+
+    # Insert all the key values for that SEA
     {
       :project     => prj     , :priority => pty,      :sample => s_name,
       :chip_design => c_design, :notes    => comments, :added  => Time.now,
@@ -50,8 +57,10 @@ def load_pending(g_url)
                                         :key   => key,
                                         :value => value})
     end
+    entries_processed = i
   end
-  Helpers::log("+ {i} added: #{sea_name}")
+
+  Helpers::log("+ #{entries_processed} SEAs added.")
 end
 
 o = OpenStruct.new
@@ -74,7 +83,7 @@ OptionParser.new do |opts|
     o.name = n
   end
 
-  opts.on '-g', '--n=GURL', 'Gdoc URL (optional)' do |g|
+  opts.on '-g', '--g=GURL', 'Gdoc URL (optional)' do |g|
     o.gdoc_url = g
   end
 
@@ -96,7 +105,7 @@ end.parse! ARGV
 # load_pending: load SE from csv file 
 # 
 h = "For help use -h."
-Helpers::log("And action is required.#{h}", 1) if !o.action
+Helpers::log("And action is required. #{h}", 1) if !o.action
 ra = /add|remove|update/
 Helpers::log("I need a SEA name. #{h}"    , 1) if !o.name && o.action =~ ra
 Helpers::log("I need a key/value. #{h}"   , 1) if o.action == 'update' &&
