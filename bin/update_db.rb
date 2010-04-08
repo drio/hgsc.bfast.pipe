@@ -29,10 +29,10 @@ end
 
 # Load pending analysis from gdoc 
 # NOTICE this is heavily dependant on the format of the gdoc (csv)
-def load_pending
-  g_url = "http://spreadsheets.google.com/" +
-          "pub?key=0AiinUSoGtvz7dHZpd1E2cjJGYzVpbkYwN2pYWXQyb2c&gid=2" +
-          "&output=csv"
+def load_pending(g_url)
+  g_url ||= "http://spreadsheets.google.com/" +
+            "pub?key=0AiinUSoGtvz7dHZpd1E2cjJGYzVpbkYwN2pYWXQyb2c&gid=2" +
+            "&output=csv"
 
   load_csv_pending(g_url).each_with_index do |e,i|
     r_name, s_name, prj, c_design, type, pty, d_added, comments = e
@@ -74,6 +74,10 @@ OptionParser.new do |opts|
     o.name = n
   end
 
+  opts.on '-g', '--n=GURL', 'Gdoc URL (optional)' do |g|
+    o.gdoc_url = g
+  end
+
   opts.on_tail '-h', '--help', 'Print this help' do
     puts opts
     exit 0
@@ -103,7 +107,7 @@ case o.action
   when "add"         ; M_helpers::add o
   when "remove"      ; M_helpers::remove o 
   when "update"      ; M_helpers::update o
-  when "load_pending"; load_pending
+  when "load_pending"; load_pending o.gdoc_url
   else
     Helpers::log("I cannot process this action. #{h}")
 end
