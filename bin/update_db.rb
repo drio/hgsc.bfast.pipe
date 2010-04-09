@@ -11,6 +11,25 @@ require 'lib/helpers'
 require 'lib/models'
 require 'open-uri'
 
+# Display SEA status in different ways
+def show(o, rs) # args and reg exp of valid things to show
+  Helpers::log("User requested to show #{o.show} SEAs.")
+  case o.show
+    when "pending"
+      Sea.each {|s| puts "#{s.id}, #{s.name}, #{s.priority}" if s.started.nil? }
+    when "completed"
+      Sea.each {|s| puts "#{s.id}, #{s.name}" if s.completed }
+    when "computing"
+      Sea.each {|s| puts "#{s.id}, #{s.name}" if s.started && !s.completed }
+    when "all"
+      Sea.each do |s| 
+        puts "#{s.id}, #{s.name}, #{s.added}, #{s.started}, #{s.completed}"
+      end
+    else
+      Helpers::log("I can't process this 'show' cmd")
+  end
+end
+
 def load_csv_pending(g_url)
   entries = []
   i=0
@@ -64,6 +83,8 @@ def load_pending(g_url)
   Helpers::log("+ #{entries_processed} SEAs added.")
 end
 
+# Main
+#
 o = OpenStruct.new
 
 OptionParser.new do |opts|
@@ -88,36 +109,36 @@ OptionParser.new do |opts|
     o.gdoc_url = g
   end
 
+  opts.on '-s', '--show=WHAT', 'What SEAs to show' do |s|
+    o.show = s
+  end
+
   opts.on_tail '-h', '--help', 'Print this help' do
     puts opts
     exit 0
   end
 end.parse! ARGV
 
-# Add: $0 -a add (just create a new Id + name)
-#
-# Remove: $0 -a remove -n SEA_name
-#
-# Update: $0 -a update -k KEY -v VALUE
-# 1. Find the SEA
-#   + if   model Sea has that method -> insert
-#   + else use key/value table
-#
-# load_pending: load SE from csv file 
-# 
 h = "For help use -h."
-Helpers::log("And action is required. #{h}", 1) if !o.action
-ra = /add|remove|update/
-Helpers::log("I need a SEA name. #{h}"    , 1) if !o.name && o.action =~ ra
-Helpers::log("I need a key/value. #{h}"   , 1) if o.action == 'update' &&
-                                                  (!o.key || !o.value)
+if o.action
+  ra = /add|remove|update|load_pending/
+  Helpers::log("I need a SEA name. #{h}" , 1) if o.action =~ ra
+  Helpers::log("I need a key/value. #{h}", 1) if o.action == 'update' &&
+                                                 (!o.key || !o.value)
+  Helpers::log("Action: #{o.action}")
+  case o.action
+    when "add"         ; M_helpers::add o
+    when "remove"      ; M_helpers::remove o
+    when "update"      ; M_helpers::update o
+    when "load_pending"; load_pending o.gdoc_url
+    else
+      Helpers::log("I cannot process this action. #{h}")
+  end
+elsif !o.action and o.show
+  rs = /pending|completed|computing|all/
+  Helpers::log("What do you want me to show?. #{h}" , 1) unless o.show =~ rs
 
-Helpers::log("Action: #{o.action}")
-case o.action
-  when "add"         ; M_helpers::add o
-  when "remove"      ; M_helpers::remove o 
-  when "update"      ; M_helpers::update o
-  when "load_pending"; load_pending o.gdoc_url
-  else
-    Helpers::log("I cannot process this action. #{h}")
+  show o, rs
+else
+  Helpers::log("#{h}" , 1)
 end
