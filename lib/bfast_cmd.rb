@@ -16,7 +16,7 @@ class BfastCmd
 
   # Flag the DB so we know the analysis has started
   def fdb_completed
-    update_db               +
+    update_db_tool          +
     '-a update '            +
     '-n "#{root_name}" '    +
     "--key=completed "      +
@@ -153,6 +153,10 @@ class BfastCmd
   end
 
   private
+
+  def update_db_tool
+    "#{@config.global_update_db_tool}"
+  end
 
   def picard_validation; "#{@config.global_picard_validation.upcase}" ;end
 
