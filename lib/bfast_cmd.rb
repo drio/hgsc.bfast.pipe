@@ -14,6 +14,15 @@ class BfastCmd
     (1..@n_splits).each {|s| FileUtils.mkdir_p "./output/split#{s}" }
   end
 
+  # Flag the DB so we know the analysis has started
+  def fdb_completed
+    update_db               +
+    '-a update '            +
+    '-n "#{root_name}" '    +
+    "--key=completed "      +
+    '--value="#{Time.now}"'
+  end
+
   # bfast match -A 1 -t -n 8 -f $ref -r $fastq > bfast.matches.file.$root.bmf
   def match(fastq)
     set_current_split(fastq)

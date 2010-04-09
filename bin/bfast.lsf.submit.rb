@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby19
-
+#
+# This tools creates the necessary cluster JOBS to complete 
+# a SEA (Sequence Event Analysis)
+#
 $: << File.join(File.dirname(File.dirname($0)), "lib")
 require 'load_libs'
 
@@ -86,52 +89,12 @@ if config.global_input_CAP == 1
   dep = lsf.add_job("capture_stats", cmds.capture_stats, "", re_cap, s_deps)
 end
 
+# If we completed the SEA, we should flag the DB so we know
+# the analysis completed
+fdb_deps = config.global_input_CAP == 0 ? s_deps : [dep]
+dep = lsf.add_job("flag_db_completed", cmds.fdb_completed, "", nil, fdb_deps)
+
 # Email if the analysis went well
-email_deps = config.global_input_CAP == 0 ? s_deps : [dep]
-lsf.add_job("email_success", cmds.email_success, "", nil, email_deps)
+lsf.add_job("email_success", cmds.email_success, "", nil, dep)
 
 lsf.create_file
-
-__END__
-input_options:
- run_name: run_small_test
- f3: reads_f3
- r3: reads_r3
- qf3: quals_f3
- qr3: quals_r3
-global_options:
- lsf_queue: hptest
- threads: 7
- bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/bfast/bfast
- samtools_bin: /stornext/snfs1/next-gen/software/samtools-0.1.6
- space: CS
- fasta_file_name: /stornext/snfs3/drio_scratch/bf.indexes/small/test.fasta
- timing: ON
- logs_dir: ./lsf_logs
- run_dir: /BA_EVAL_01/drio_scratch/bfast/small_test/input
- reads_dir: /BA_EVAL_01/drio_scratch/bfast/small_test/reads
- output_dir: /BA_EVAL_01/drio_scratch/bfast/small_test/output
- tmp_dir: /space1/tmp/
- output_id: output_id_like_test_drio
- reads_per_file: 50000
-match_options:
- threads: 8
- lsf_resources: "rusage[mem=2800]span[hosts=1]"
-local_options:
- threads: 8
- lsf_resources: "rusage[mem=2800]span[hosts=1]"
-post_options:
- algorithm: 4
- lsf_resources: "rusage[mem=400]"
- rg_id: 0
- rg_pl: solid
- rg_pu: SOLiD0097_20081114_1_Hs_1011_MP_F3
- rg_lb: HS_1011_MP
- rg_ds: rl=25
- rg_dt: 2010-01-22T18:20:29-0600
- rg_sm: CMT-001
- rg_cn: Baylor
-tobam_options:
- lsf_resources: "rusage[mem=400]"
-final_options:
- lsf_resources: "rusage[mem=400]"

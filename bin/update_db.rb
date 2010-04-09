@@ -20,7 +20,7 @@ def load_csv_pending(g_url)
       next unless row =~ /^0/
       row.chomp!
       ar = row.split(",")
-      Helpers::log("warning: n cols != 8 (#{ar.size} - #{i})") if ar.size != 8
+      #Helpers::log("warning: n cols != 8 (#{ar.size} - #{i})") if ar.size != 8
       entries << ar
     end
   end
@@ -39,7 +39,7 @@ def load_pending(g_url)
   load_csv_pending(g_url).each_with_index do |e,i|
 
     r_name, s_name, prj, c_design, type, pty, d_added, comments = e
-    sea_name = "#{r_name}_#{s_name}".force_encoding('ASCII-8BIT')
+    sea_name = "#{r_name}_#{s_name}".force_encoding('ASCII-8BIT').gsub(/ /,'')
     Helpers::log("+ loading (#{i}): #{sea_name}")
 
     # Insert the SEA
@@ -51,7 +51,8 @@ def load_pending(g_url)
       :chip_design => c_design, :notes    => comments, :added  => Time.now,
     }.each do |key, value|
       key.to_s.force_encoding('ASCII-8BIT')
-      value.force_encoding('ASCII-8BIT') if !value.nil? and value.instance_of?(String)
+      value.force_encoding('ASCII-8BIT').chomp if !value.nil? and 
+                                                  value.instance_of?(String)
       Helpers::log("updating (#{i}) key: #{key} || value: #{value}")
       M_helpers::update OpenStruct.new({:name  => sea_name,
                                         :key   => key,
@@ -75,7 +76,7 @@ OptionParser.new do |opts|
     o.key = k
   end
 
-  opts.on '-v', '--v=VALUE', 'Value' do |v|
+  opts.on '-v', '--value=VALUE', 'Value' do |v|
     o.value = v
   end
 
