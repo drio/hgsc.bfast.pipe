@@ -34,14 +34,24 @@ def remove_dirs()
   if File::exist?("cap") && File::directory?("cap")
     FileUtils.rm_rf("cap")
   end
+
+  puts "Zipping data..."
+  `bzip2 ./data/mp/*`
+
+  fr_dir = "./data/fr"
+  if File::exist?(fr_dir) && File::directory?(fr_dir)
+    FileUtils.remove_dir(fr_dir, force = true)
+  end
   puts "Done."
   exit 0
 end
 
 def prepare_test_env(test_type)
+  curr_dir = Dir.pwd
   if File::exist?(test_type) && File::directory?(test_type)
     FileUtils.rm_rf(test_type)
   end
+  puts "Creating Dir : " + test_type
   FileUtils.mkdir(test_type)
   FileUtils.mkdir(test_type + "/reads")
   FileUtils.mkdir(test_type + "/track_jobs")
@@ -50,8 +60,13 @@ def prepare_test_env(test_type)
     `bzip2 -d ./data/mp/*`
   else
     `bzip2 -d ./data/mp/r3.*`
-     FileUtils.ln_s('../mp/r3.csfasta', './data/fr/r3.csfasta', :force => true)
-     FileUtils.ln_s('../mp/r3.qual', './data/fr/r3.qual', :force => true)
+     if !File::exist?('./data/fr')
+       FileUtils.mkdir('./data/fr')
+     end
+     csfasta_path = curr_dir + "/data/mp/r3.csfasta"
+     qual_path = curr_dir + "/data/mp/r3.qual"
+     FileUtils.ln_s(csfasta_path, './data/fr/r3.csfasta', :force => true)
+     FileUtils.ln_s(qual_path, './data/fr/r3.qual', :force => true)
   end
 
   FileUtils.cd(test_type, :verbose => true)
