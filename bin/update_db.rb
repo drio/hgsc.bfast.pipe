@@ -49,9 +49,10 @@ end
 # Load pending analysis from gdoc 
 # NOTICE this is heavily dependant on the format of the gdoc (csv)
 def load_pending(g_url)
-  g_url ||= "http://spreadsheets.google.com/" +
-            "pub?key=0AiinUSoGtvz7dHZpd1E2cjJGYzVpbkYwN2pYWXQyb2c&gid=2" +
-            "&output=csv"
+  default_url =  "http://spreadsheets.google.com/" +
+                 "pub?key=0AiinUSoGtvz7dHZpd1E2cjJGYzVpbkYwN2pYWXQyb2c&gid=2" +
+                 "&output=csv"
+  g_url = (g_url == "default") ? default_url : g_url
   entries_processed = 0
 
   # Iterate over all the lines
@@ -88,8 +89,9 @@ end
 o = OpenStruct.new
 
 OptionParser.new do |opts|
-  valid_actions = "add, remove, udpate, load_pending"
-  opts.on '-a', '--action=ACTION', "Action (#{valid_actions})" do |a|
+  o.valid_actions = "add, remove, update"
+  o.show_values   = "pending, completed, computing, all"
+  opts.on '-a', '--action=ACTION', "Action (#{o.valid_actions})" do |a|
     o.action = a
   end
 
@@ -101,15 +103,15 @@ OptionParser.new do |opts|
     o.value = v
   end
 
-  opts.on '-n', '--n=NAME', 'SEA Name' do |n|
+  opts.on '-n', '--name=NAME', 'SEA Name' do |n|
     o.name = n
   end
 
-  opts.on '-g', '--g=GURL', 'Gdoc URL (optional)' do |g|
+  opts.on '-g', '--g=GURL', 'Gdoc URL (gdoc URL)' do |g|
     o.gdoc_url = g
   end
 
-  opts.on '-s', '--show=WHAT', 'What SEAs to show' do |s|
+  opts.on '-s', '--show=WHAT', "What SEAs to show (#{o.show_values})" do |s|
     o.show = s
   end
 
@@ -121,8 +123,8 @@ end.parse! ARGV
 
 h = "For help use -h."
 if o.action
-  ra = /add|remove|update|load_pending/
-  Helpers::log("I need a SEA name. #{h}" , 1) if o.action =~ ra
+  ra = /add|remove|update/
+  Helpers::log("I need a SEA name. #{h}" , 1) if o.action =~ ra && !o.name
   Helpers::log("I need a key/value. #{h}", 1) if o.action == 'update' &&
                                                  (!o.key || !o.value)
   Helpers::log("Action: #{o.action}")
@@ -130,7 +132,6 @@ if o.action
     when "add"         ; M_helpers::add o
     when "remove"      ; M_helpers::remove o
     when "update"      ; M_helpers::update o
-    when "load_pending"; load_pending o.gdoc_url
     else
       Helpers::log("I cannot process this action. #{h}")
   end
@@ -139,6 +140,8 @@ elsif !o.action and o.show
   Helpers::log("What do you want me to show?. #{h}" , 1) unless o.show =~ rs
 
   show o, rs
+elsif !o.action and o.gdoc_url
+  load_pending o.gdoc_url
 else
   Helpers::log("#{h}" , 1)
 end
