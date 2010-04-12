@@ -16,7 +16,7 @@ class BfastCmd
 
   # Flag the DB so we know the analysis has started
   def fdb_completed
-    update_db               +
+    update_db_tool          +
     '-a update '            +
     '-n "#{root_name}" '    +
     "--key=completed "      +
@@ -104,7 +104,8 @@ class BfastCmd
 
   # Regenerate the header so we have more useful information on it
   def gen_header
-    cmd = "#{@config.global_java_vm} -jar #{@config.header_regen_jar} "
+    cmd = "#{@config.global_java_vm} " + 
+    cmd << "-jar #{dist_dir}/#{@config.header_regen_jar} "
     cmd << "type=" + @config.header_sq_type + " "
     #%w{ID PL PU LB DS DT SM CN}.each do |t|
     # t_value = eval("@config.post_rg_" + t.downcase).to_s
@@ -154,14 +155,25 @@ class BfastCmd
 
   private
 
+  def dist_dir
+    "#{@config.global_dist_dir}"
+  end
+
+  def update_db_tool
+    dist_dir + "/bin/update_db.rb"
+  end
+
   def picard_validation; "#{@config.global_picard_validation.upcase}" ;end
 
   def stats_core
-    "#{@config.global_java_vm} -jar #{@config.stats_s_jar} #{bam_file_sorted_dups} "
+    "#{@config.global_java_vm} "   +
+    "-jar #{dist_dir}/#{@config.stats_s_jar} " +
+    " #{bam_file_sorted_dups} "
   end
 
   def read_val_core
-    "#{@config.global_java_vm} -jar #{@config.countreads_bam_reads_val_jar} "
+    "#{@config.global_java_vm} " +
+    "-jar #{dist_dir}/#{@config.countreads_bam_reads_val_jar} "
   end
 
   def java_vm_mem_to_bam; "#{@config.tobam_java_vm_mem}" ;end

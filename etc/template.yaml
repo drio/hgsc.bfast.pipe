@@ -1,6 +1,7 @@
 input_options:
  run_name: __RN__
 global_options:
+ dist_dir: /stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/hgsc.bfast.pipe
  input_MP: __IMP__
  input_CAP: __ICAP__
  lsf_queue: normal
@@ -52,18 +53,18 @@ dups_options:
 final_options:
  lsf_resources: "rusage[mem=4000]"
 header_options:
- regen_jar: /stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/hgsc.bfast.pipe/java/bam.header.creation/bam.header.creation.jar
+ regen_jar: java/bam.header.creation/bam.header.creation.jar
  sq_type: hsap36.1
  lsf_resources: "rusage[mem=4000]"
 stats_options:
  lsf_resources: "rusage[mem=4000]"
- s_jar: /stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/hgsc.bfast.pipe/java/BAMStats/BAMStats.jar
+ s_jar: java/BAMStats/BAMStats.jar
 capture_options:
  stats_dir: "cap_stats"
  j_classpath: "/stornext/snfs1/next-gen/software/hgsc/capture_stats/sam-1.07.jar:/stornext/snfs1/next-gen/software/hgsc/capture_stats/picard-1.07.jar:/stornext/snfs1/next-gen/software/hgsc/capture_stats:."
  chip_design: __CD__
  lsf_resources: "rusage[mem=4000]"
 countreads_options:
- bam_reads_val_jar: /stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/hgsc.bfast.pipe/java/raw.bam.reads.validator/raw.bam.reads.validator.jar
+ bam_reads_val_jar: java/raw.bam.reads.validator/raw.bam.reads.validator.jar
 success_options:
  email_to: "deiros@bcm.edu niravs@bcm.edu mp@p3ll0n.net"

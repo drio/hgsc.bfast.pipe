@@ -8,7 +8,7 @@ DB_URL = case (`uname`.chomp)
   when /Darwin/
     "sqlite://#{dbs_dir}/test_seas.db"
   else
-    "sqlite://#{dbs_dir}/seas.db"
+    "sqlite://#{dbs_dir}/test_seas.db"
 end
 
 DB = Sequel.connect(DB_URL)

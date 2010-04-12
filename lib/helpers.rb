@@ -9,7 +9,7 @@ module Helpers
   # TO DO: This has to by dynamic.
   # 
   SNFS             = %w(1 4).freeze
-  L1_DIR           = `uname`.chomp == "Darwin" ? "tmp" : "stornext"
+  L1_DIR           = `id -u -n`.chomp == "p-solid" ? "stornext" : "tmp"
   SEA_DIR_TEMPLATE = "/#{L1_DIR}/snfsSS/next-gen/solid/analysis/solidII"
   RAW_DIR_TEMPLATE = "/#{L1_DIR}/snfsSS/next-gen/solid/results/solidII"
   SNFS_NUMBER      = "4"
