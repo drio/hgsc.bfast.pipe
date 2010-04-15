@@ -1,13 +1,14 @@
 #!/usr/bin/env ruby
 
-#require '../lib/to_yaml'
 require 'fileutils'
-require '../lib/config.rb'
+#require '../lib/config.rb'
 require '../lib/helpers.rb'
 
 clean_all = false
 run_test = false
 test_type = ""
+$chip_design =  "/stornext/snfs1/next-gen/software/hgsc/capture_designs" +
+               "/HD_exome/HD2_exome_target_region.bed.seq"
 
 def usage()
   puts "Usage:"
@@ -20,122 +21,129 @@ def usage()
   exit 1
 end
 
+# Method to clean the test directories
 def remove_dirs()
   puts "Removing test directories..."
-  
-  if File::exist?("fr") && File::directory?("fr")
-    FileUtils.rm_rf("fr")
+ 
+  if File::exist?("tmp") && File::directory?("tmp")
+    FileUtils.rm_rf("tmp") 
   end
-
-  if File::exist?("mp") && File::directory?("mp")
-    FileUtils.rm_rf("mp")
-  end
-
-  if File::exist?("cap") && File::directory?("cap")
-    FileUtils.rm_rf("cap")
-  end
-
-  puts "Zipping data..."
-  `bzip2 ./data/mp/*`
-
-  fr_dir = "./data/fr"
-  if File::exist?(fr_dir) && File::directory?(fr_dir)
-    FileUtils.remove_dir(fr_dir, force = true)
-  end
-  puts "Done."
   exit 0
 end
 
-def prepare_test_env(test_type)
-  curr_dir = Dir.pwd
-  if File::exist?(test_type) && File::directory?(test_type)
-    FileUtils.rm_rf(test_type)
-  end
-  puts "Creating Dir : " + test_type
-  FileUtils.mkdir(test_type)
-  FileUtils.mkdir(test_type + "/reads")
-  FileUtils.mkdir(test_type + "/track_jobs")
-
+# Method to generate a valid but random run name
+def generate_run_name(test_type)
+  time = Time.new
+  spot_name = "0312_" + time.year.to_s + time.month.to_s + "00" +
+               time.day.to_s + "_1_SP" 
+  library_name = "" 
+  
   if test_type.eql?("mp")
-    `bzip2 -d ./data/mp/*`
+    library_name = "ANG_TEST_1_1pA_0100" + rand(999999).to_s + "_1"
   else
-    `bzip2 -d ./data/mp/r3.*`
-     if !File::exist?('./data/fr')
-       FileUtils.mkdir('./data/fr')
-     end
-     csfasta_path = curr_dir + "/data/mp/r3.csfasta"
-     qual_path = curr_dir + "/data/mp/r3.qual"
-     FileUtils.ln_s(csfasta_path, './data/fr/r3.csfasta', :force => true)
-     FileUtils.ln_s(qual_path, './data/fr/r3.qual', :force => true)
+    library_name = "ANG_TEST_1_1sA_0100" + rand(999999).to_s + "_1" 
   end
-
-  FileUtils.cd(test_type, :verbose => true)
+  return spot_name + "_" + library_name
 end
 
-# Function to modify run configuration for test
-def fix_for_test(bf_config)
+# Copy data with suitable names to directories used for testing
+def copy_data(analysis_dir, result_dir, run_name, test_type)
+  if test_type.eql?("mp")
+    `cp ./data/mp/* #{result_dir}`
+    `bzip2 -d #{result_dir}/*`
+     FileUtils.mv(result_dir + "/f3.csfasta", result_dir +
+                  "/" + run_name + "_F3.csfasta")
+     FileUtils.mv(result_dir + "/f3.qual", result_dir +
+                  "/" + run_name + "_F3_QV.qual")
+  else
+    `cp ./data/mp/r3* #{result_dir}`
+    `bzip2 -d #{result_dir}/*`
+  end
+  FileUtils.mv(result_dir + "/r3.csfasta", result_dir +
+               "/" + run_name + "_R3.csfasta")
+  FileUtils.mv(result_dir + "/r3.qual", result_dir +
+               "/" + run_name + "_R3_QV.qual")
+end
+
+# Creates expected directory structure and modifies yaml for testing
+def prepare_test_env(test_type)
+  curr_dir = Dir.pwd
+  time = Time.new  
+  run_name = generate_run_name(test_type)
+  spot_name = run_name.slice(/0312_\d+_1_SP/)
+  lib_name = run_name.slice(/ANG_TEST_1_1\wA_\d+_1$/)
+
+  analysis_dir = "./tmp/snfs4/next-gen/solid/analysis/solid0312/" +
+  time.strftime("%Y") + "/" + time.strftime("%m") # + "/" + run_name
+
+  result_dir = "./tmp/snfs4/next-gen/solid/results/solid0312/" + spot_name + 
+               "/" + lib_name + "/results.F1B1/primary/reads" 
+
+  sea_dir = analysis_dir + "/" + run_name
+
+  # Create necessary directories
+  FileUtils.mkdir_p(analysis_dir)
+  FileUtils.mkdir_p(result_dir)
+  FileUtils.mkdir_p("./tmp/snfs1/next-gen/solid/analysis/solid0312")
+  FileUtils.mkdir_p("./tmp/snfs1/next-gen/solid/results/solid0312")
+
+  # copy data to these directories
+  copy_data(analysis_dir, result_dir, run_name, test_type)
+
+  # build analysis driver command
+  analysis_driver_cmd = "ruby19 ../bin/analysis_driver.rb -a sea_create " +
+                        " -r " + run_name
+
+  # for capture test, add chip design parameter                       
+  if test_type.eql?("cap")
+    analysis_driver_cmd = analysis_driver_cmd + " -c " + $chip_design
+  end 
+ 
+  puts analysis_driver_cmd 
+  # Execute the command to start analysis_driver
+  output = `#{analysis_driver_cmd}`
+
+  # Copy data from result directory to analysis directory. This is 
+  # required as creation of soft links to data from the analysis directory
+  # to the result directory does not work in the test mode
+  `cp #{result_dir}/* #{analysis_dir}/#{run_name}/input`
+
+  # Modify the yaml for testing purpose
+  modify_yaml_for_testing(sea_dir)
+  #return output
+  
+  return sea_dir
+end
+
+# Method to modify the .yaml for testing. Reference is changed to test
+# reference, distribution directory is changed to working copy
+# and memory requirements are reduced
+def modify_yaml_for_testing(yaml_path)
+  puts "Modifying yaml for testing"
+  yaml_file = yaml_path + "/bf.config.yaml"
   c_path = Dir.pwd
+  c_path.slice!(/\/test$/)
+
+  bf_config = File.open(yaml_file).read
   bf_config.gsub!(/\/h\/hsap.36.1.hg18\/hsap_36.1_hg18.fa/, "/t/test/test.fa")
   %w{28000 8000 4000}.each {|n| bf_config.gsub!(/#{n}/, "400") }
   %w{8g 4g}.each           {|n| bf_config.gsub!(/#{n}/, "1g") }
-
-  bf_config.gsub!(/regen_jar:.+$/,
-                  "regen_jar: #{c_path}" +
-                  "/java/bam.header.creation/bam.header.creation.jar")
-  bf_config.gsub!(/s_jar:.+$/,
-                  "s_jar: #{c_path}/java/BAMStats/BAMStats.jar")
-  bf_config.gsub!(/bam_reads_val_jar:.+$/,
-                  "bam_reads_val_jar: #{c_path}" +
-                  "/java/raw.bam.reads.validator/raw.bam.reads.validator.jar")
-  bf_config.gsub!(/reads_per_file:.+$/, "reads_per_file: 480")
-  bf_config
-end
-
-# Function to generate configuration YAML
-def generate_yaml(test_type)
-
-  # Location of test data
-  data_fr = "/test/data/fr"
-  data_mp = "/test/data/mp"
-  chip_design =  "/stornext/snfs1/next-gen/software/hgsc/capture_designs" +
-                 "/HD_exome/HD2_exome_target_region.bed.seq"
-
-  puts "Generating YAML for test type : " + test_type
-
-  curr_dir = Dir.pwd
-  Dir.chdir("../../")
-  yaml_inst = Yaml_template.new
-  bf_config = yaml_inst.to_s
-  bf_config.gsub!(/__RN__/        , "run_small_test")
-  bf_config.gsub!(/__IMP__/       , test_type.eql?("mp") ? "1" : "0")
-  bf_config.gsub!(/__ICAP__/      , test_type.eql?("cap") ? "1" : "0")
-  bf_config.gsub!(/__RUN_DIR__/   , test_type.eql?("mp") ? Dir.pwd + data_mp :
-                  Dir.pwd + data_fr)
-  bf_config.gsub!(/__READS_DIR__/ , "./reads")
-  bf_config.gsub!(/__OUTPUT_DIR__/, "./output")
-  bf_config.gsub!(/__CD__/        , test_type.eql?("cap") ? chip_design : "" )
-
-  bf_config = fix_for_test(bf_config)
-
-  # Write the config yaml file to the test/{mp, fr, cap} directory
-  Dir.chdir(curr_dir)
-  File.open("bf.config.yaml", "w") {|f| f.write(bf_config)}
-end
-
-def create_lsf_jobs
-  `../../bin/bfast.split.reads.rb ./bf.config.yaml`
-  `../../bin/bfast.lsf.submit.rb ./bf.config.yaml`
-end
-
-def schedule_lsf_jobs
-  puts "Sending pipeline jobs to cluster"
   
-  if !File::exists?("cluster_JOBS.sh")
-    puts "ERROR : Missing cluster_Jobs.sh file"
-    puts "Cannot schedule lsf jobs"
-    exit 2
-  end
-  `./cluster_JOBS.sh`
+  bf_config.gsub!(/dist_dir:.+$/, "dist_dir: #{c_path}")
+  File.open(yaml_file, "w") {|f| f.write(bf_config)}
+end
+
+# Method to create a starting script "go.sh". Need a separate method to work
+# around the errors in creating links from result to analysis directory
+# generated in analysis driver
+def create_starting_script(sea_dir)
+  c_path = Dir.pwd
+  c_path.slice!(/test$/)
+  run_analysis_path = c_path + "/helpers/run_analysis.sh" 
+  FileUtils.cd(sea_dir)
+  `#{run_analysis_path} normal > ./go.sh`
+  FileUtils.chmod(0755, "./go.sh")
+  `sh ./go.sh`
 end
 
 if ARGV.length < 1 || ARGV.length > 2
@@ -168,8 +176,6 @@ if run_test == true
 end
 
 puts "Running Test Type : " + test_type
-
-prepare_test_env(test_type)
-generate_yaml(test_type)
-create_lsf_jobs()
-schedule_lsf_jobs()
+sea_dir = prepare_test_env(test_type)
+puts "Generating starting script and running the test"
+create_starting_script(sea_dir)

@@ -1,6 +1,18 @@
 #!/bin/bash
 #
-prod_pipe="/stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/hgsc.bfast.pipe"
+
+curr_dir=`pwd`
+user_name=`id -u -n`
+prod_pipe=""
+
+# For p-solid user, use the production version of the pipeline
+# For any other user, use current local working copy
+if [ "$user_name" = "p-solid" ]; then
+  prod_pipe="/stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/hgsc.bfast.pipe"
+else
+  prod_pipe=${curr_dir/test*/''}
+fi
+
 run_process="$prod_pipe/bin/script.run.process.sh"
 update_db="$prod_pipe/bin/update_db.rb"
 config_file="./bf.config.yaml"
