@@ -130,6 +130,7 @@ def modify_yaml_for_testing(yaml_path)
   %w{8g 4g}.each           {|n| bf_config.gsub!(/#{n}/, "1g") }
   
   bf_config.gsub!(/dist_dir:.+$/, "dist_dir: #{c_path}")
+  bf_config.gsub!(/reads_per_file:.+$/, "reads_per_file: 480")
   File.open(yaml_file, "w") {|f| f.write(bf_config)}
 end
 
