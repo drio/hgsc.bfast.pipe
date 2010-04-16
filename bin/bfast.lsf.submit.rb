@@ -95,8 +95,11 @@ end
 #dep = lsf.add_job("flag_db_completed", cmds.fdb_completed, "", nil, fdb_deps)
 #lsf.add_job("email_success", cmds.email_success, "", nil, [dep])
 
-# Email if the analysis went well
-email_deps = config.global_input_CAP == 0 ? s_deps : [dep]
-lsf.add_job("email_success", cmds.email_success, "", nil, email_deps)
+# Clean up dirs
+clean_deps = config.global_input_CAP == 0 ? s_deps : [dep]
+email_deps = lsf.add_job("clean_up", cmds.clean_up, "", nil, clean_deps)
 
+# Email if the analysis went well
+#email_deps = config.global_input_CAP == 0 ? s_deps : [dep]
+lsf.add_job("email_success", cmds.email_success, "", nil, [email_deps])
 lsf.create_file

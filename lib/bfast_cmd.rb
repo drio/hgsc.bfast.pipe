@@ -1,3 +1,4 @@
+require 'tempfile'
 # vim: set filetype=ruby expandtab tabstop=2 shiftwidth=2 tw=80
 
 %w(yaml fileutils singleton digest/md5).each { |dep| require dep }
@@ -142,15 +143,31 @@ class BfastCmd
   end
 
   def email_success
+    extra_fn  = "email_info.txt"
     email_to  = @config.success_email_to
     cat_files = if @config.global_input_MP == 1
       "marked.stats.F3.txt marked.stats.R3.txt"
     else 
       "marked.stats.txt"
     end
-    cmd = "cat #{cat_files} | "
+
+    # Dump here information about the run you want to send by email
+    File.open(extra_fn, "w") do |f|
+      f.puts "\nSEA dir: #{Dir.pwd}"
+      if @config.global_input_CAP == 1
+        f.puts "Cap stats: " + Dir.pwd.chomp + "/" + @config.capture_stats_dir 
+      end
+    end
+  
+    cmd = "cat #{cat_files} #{extra_fn} | "
     cmd << 'mail -s \"[OK] BFast analysis completed: ' + root_name + '\"'
     cmd << " #{email_to}"
+  end
+
+  # Clean up the analysis directory 
+  # rm -rf cluster_JOBS.sh go.sh reads
+  def clean_up
+    cleaner_script = File.dirname(__FILE__) + "/../helpers/clean_sea_dir.sh"
   end
 
   private
