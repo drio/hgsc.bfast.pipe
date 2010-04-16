@@ -91,10 +91,12 @@ end
 
 # If we completed the SEA, we should flag the DB so we know
 # the analysis completed
-fdb_deps = config.global_input_CAP == 0 ? s_deps : [dep]
-dep = lsf.add_job("flag_db_completed", cmds.fdb_completed, "", nil, fdb_deps)
+#fdb_deps = config.global_input_CAP == 0 ? s_deps : [dep]
+#dep = lsf.add_job("flag_db_completed", cmds.fdb_completed, "", nil, fdb_deps)
+#lsf.add_job("email_success", cmds.email_success, "", nil, [dep])
 
 # Email if the analysis went well
-lsf.add_job("email_success", cmds.email_success, "", nil, [dep])
+email_deps = config.global_input_CAP == 0 ? s_deps : [dep]
+lsf.add_job("email_success", cmds.email_success, "", nil, email_deps)
 
 lsf.create_file

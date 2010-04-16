@@ -10,16 +10,15 @@ module Helpers
 
   # TO DO: This has to by dynamic.
   # 
-  SNFS             = %w(1 4).freeze
+  SNFS             = %w(1 4 5).freeze
   L1_DIR           = `id -u -n`.chomp == "p-solid" ? "/stornext" :
                       curr_dir + "/tmp"
   SEA_DIR_TEMPLATE = "#{L1_DIR}/snfsSS/next-gen/solid/analysis/solidII"
   RAW_DIR_TEMPLATE = "#{L1_DIR}/snfsSS/next-gen/solid/results/solidII"
   SNFS_NUMBER      = "4"
-  RUN_A_PATH       = `id -u -n`.chomp == "p-solid" ? 
-                     "/stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/" +
-                     "hgsc.bfast.pipe/helpers/run_analysis.sh" :
-                     curr_dir.gsub!(/test$/, "helpers/run_analysis.sh")
+  RUN_A_PATH       = `id -u -n`.chomp == "p-solid" ?
+                      Dir.pwd + "helpers/run_analysis.sh" :
+                      curr_dir.gsub!(/test$/, "helpers/run_analysis.sh")
 
   def self.log(msg, bye=0)
     $stderr.puts "LOG: " + msg

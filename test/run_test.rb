@@ -7,7 +7,7 @@ require '../lib/helpers.rb'
 clean_all = false
 run_test = false
 test_type = ""
-$chip_design =  "/stornext/snfs1/next-gen/software/hgsc/capture_designs" +
+$chip_design = "/stornext/snfs1/next-gen/software/hgsc/capture_designs" +
                "/HD_exome/HD2_exome_target_region.bed.seq"
 
 def usage()
@@ -86,6 +86,8 @@ def prepare_test_env(test_type)
   FileUtils.mkdir_p(result_dir)
   FileUtils.mkdir_p("./tmp/snfs1/next-gen/solid/analysis/solid0312")
   FileUtils.mkdir_p("./tmp/snfs1/next-gen/solid/results/solid0312")
+  FileUtils.mkdir_p("./tmp/snfs5/next-gen/solid/analysis/solid0312")
+  FileUtils.mkdir_p("./tmp/snfs5/next-gen/solid/results/solid0312")
 
   # copy data to these directories
   copy_data(analysis_dir, result_dir, run_name, test_type)
