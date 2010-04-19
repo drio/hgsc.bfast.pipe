@@ -164,6 +164,12 @@ class BfastCmd
     cmd << " #{email_to}"
   end
 
+  # Clean up the analysis directory 
+  # rm -rf cluster_JOBS.sh go.sh reads
+  def clean_up
+    cleaner_script = File.dirname(__FILE__) + "/../helpers/clean_sea_dir.sh"
+  end
+
   private
 
   def dist_dir
