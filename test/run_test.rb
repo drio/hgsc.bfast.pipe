@@ -133,6 +133,11 @@ def modify_yaml_for_testing(yaml_path)
   
   bf_config.gsub!(/dist_dir:.+$/, "dist_dir: #{c_path}")
   bf_config.gsub!(/reads_per_file:.+$/, "reads_per_file: 480")
+
+  # Send email only to the user that is testing this
+  user=`id -u -n`.chomp
+  bf_config.gsub!(/email_to:.+$/, "email_to: #{user}@bcm.edu")
+
   File.open(yaml_file, "w") {|f| f.write(bf_config)}
 end
 

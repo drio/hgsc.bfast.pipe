@@ -67,4 +67,4 @@ capture_options:
 countreads_options:
  bam_reads_val_jar: java/raw.bam.reads.validator/raw.bam.reads.validator.jar
 success_options:
- email_to: "deiros@bcm.edu niravs@bcm.edu mp@p3ll0n.net"
+ email_to: "deiros@bcm.edu niravs@bcm.edu mp@p3ll0n.net gokwuonu@bcm.tmc.edu jirehs@bcm.tmc.edu"
