@@ -6,6 +6,11 @@ package BAMStats;
 import java.text.*;
 import net.sf.samtools.*;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * @author niravs
  * The class that computes the statistics for the specified BAM/SAM file
@@ -38,6 +43,8 @@ public class Statistics
   // NH tag value equal to one
   private long numReadsUniqCandidateAlignments = 0;
   private boolean foundNHTag = false;  // Whether reads have NH tag
+
+  private String sTag; // Holds a F3 or R3 depending of rType
   
   /**
    * Class constructor that defaults to ReadType as read1. 
@@ -63,6 +70,7 @@ public class Statistics
   private void constructorHelper(ReadType rType)
   {
     this.rType = rType;
+    this.sTag  = (rType == ReadType.Read1) ? "F3" : "R3";
     mapQuality = new long[MAPQUALSIZE];
     nonUniqMapQual = new long[MAPQUALSIZE];
   }
@@ -163,7 +171,8 @@ public class Statistics
     System.out.println("Number of Reads considered : " + formatNumber(numReads));
     System.out.println("");
     System.out.println("Mapped Reads               : " + formatNumber(mappedReads));
-    
+
+   
     if(numReads > 0)
     {
       System.out.format("Mapped Reads Percentage    : %.2f%% %n", (1.0 * mappedReads / numReads * 100.0));
@@ -174,6 +183,7 @@ public class Statistics
     }
     
     System.out.println("Throughput                 : " + formatNumber(mappedTput) + " bp");
+
         
     if(foundNHTag == true)
     {
@@ -217,6 +227,17 @@ public class Statistics
       System.out.println("Uniqueness Percentage      : 0%");
     }
     System.out.println("Effective Throughput       : " + formatNumber(uniqTput) + " bp");
+
+    /* 4 lims */
+    // Dump here the key values for LIMS
+    //HashMap<String, String> h_for_lims = new HashMap<String, String>();
+
+    System.out.println("\nBEGIN 4 LIMS");
+    System.out.println(sTag + "_total_reads_considered: " + formatNumber(numReads));
+    System.out.println(sTag + "_total_reads_mapped: " + formatNumber(mappedReads));
+    System.out.println(sTag + "_throughput: " + formatNumber(mappedTput));
+    System.out.println(sTag + "_effective_throughput: " + formatNumber(mappedTput));
+    System.out.println("END 4 LIMS\n");
   }
   
   /**
