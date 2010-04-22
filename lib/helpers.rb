@@ -17,7 +17,7 @@ module Helpers
   RAW_DIR_TEMPLATE = "#{L1_DIR}/snfsSS/next-gen/solid/results/solidII"
   SNFS_NUMBER      = "4"
   RUN_A_PATH       = `id -u -n`.chomp == "p-solid" ?
-                      Dir.pwd + "helpers/run_analysis.sh" :
+                      File.dirname($0) + "/../helpers/run_analysis.sh" :
                       curr_dir.gsub!(/test$/, "helpers/run_analysis.sh")
 
   def self.log(msg, bye=0)
@@ -74,7 +74,6 @@ module Helpers
 
   def self.create_dir(d)
     log("Couldn't create dir: #{d}, already exists", 1) if Dir.exists?(d)
-    puts "COULT NOT CREATE DIR " + d
     begin
       FileUtils.mkdir_p d
     rescue
@@ -94,13 +93,13 @@ module Helpers
 
       # If the link is existing, bail out
       if File.exist?(sea_dir + "/" + link_name)
-        puts "Link is existing. Bye-bye"
+        Helpers::log "Link is existing. Bailing out.", 1
       end
 
       begin
         FileUtils.ln_s(data_file, sea_dir + "/" + link_name)
       rescue
-        puts "Could not create link. Bye-bye"
+        Helpers::log "Link is existing. Bailing out", 1
       end
     end 
   end
