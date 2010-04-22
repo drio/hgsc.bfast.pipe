@@ -70,7 +70,15 @@ public class Statistics
   private void constructorHelper(ReadType rType)
   {
     this.rType = rType;
-    this.sTag  = (rType == ReadType.Read1) ? "F3" : "R3";
+    if (rType == ReadType.Read1) { // read1 of a pair
+      this.sTag = "F3";
+    }
+    else if (rType == ReadType.Read2) { // read 2 of a pair
+      this.sTag = "R3";
+    }
+    else { // fragment
+      this.sTag = "F3";
+    }
     mapQuality = new long[MAPQUALSIZE];
     nonUniqMapQual = new long[MAPQUALSIZE];
   }
