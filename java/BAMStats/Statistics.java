@@ -244,7 +244,7 @@ public class Statistics
     System.out.println(sTag + "_total_reads_considered: " + formatNumber(numReads));
     System.out.println(sTag + "_total_reads_mapped: " + formatNumber(mappedReads));
     System.out.println(sTag + "_throughput: " + formatNumber(mappedTput));
-    System.out.println(sTag + "_effective_throughput: " + formatNumber(mappedTput));
+    System.out.println(sTag + "_effective_throughput: " + formatNumber(uniqTput));
     System.out.println("END 4 LIMS\n");
   }
   
