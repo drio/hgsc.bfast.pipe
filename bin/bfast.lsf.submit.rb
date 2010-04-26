@@ -22,6 +22,9 @@ splits = Dir[path_to_fastqs.chomp]
 puts "Splits wild = -#{path_to_fastqs.chomp}-"
 puts "Splits found = #{splits.size}"
 
+# Do we have bwaaln enabled?
+bwaaln_flag = config.global_bwaaln == 1 ? true : false
+
 # Prepare LSF 
 lsf = LSFDealer.new(config.input_run_name,
                     config.global_lsf_queue,
@@ -52,8 +55,13 @@ final_deps = []
 splits.each do |s|
 	sn  = s.match(/\.(\d+)\./)[1]
 	puts "Jobs for split: #{s.split} - #{sn}"
-	dep = lsf.add_job("match" , cmds.match(s), sn, re_match)
-	dep = lsf.add_job("local" , cmds.local   , sn, re_local , [dep])
+  if bwaaln_flag
+    dep = lsf.add_job("bwaaln"  , cmds.bwaaln(s), sn, re_match)
+	  dep = lsf.add_job("local_u" , cmds.local_u  , sn, re_local , [dep])
+  else
+	  dep = lsf.add_job("match" , cmds.match(s), sn, re_match)
+	  dep = lsf.add_job("local" , cmds.local   , sn, re_local , [dep])
+  end
 	dep = lsf.add_job("postp" , cmds.post    , sn, re_post  , [dep])
 	dep = lsf.add_job("tobam" , cmds.tobam   , sn, re_tobam , [dep])
 	lsf.blank "----------------"

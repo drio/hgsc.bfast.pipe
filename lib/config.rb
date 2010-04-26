@@ -5,7 +5,7 @@
 # Reads the bfast experiment config yaml and prepares config
 class Config
   def initialize(config)
-    %w(input global match local post tobam
+    %w(input global bwaaln match local post tobam
        sort dups final header stats countreads capture success).each do |r|
       set config, r
     end

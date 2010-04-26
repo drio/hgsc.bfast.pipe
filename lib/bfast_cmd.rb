@@ -30,16 +30,32 @@ class BfastCmd
     main_bin('match') + core_cmd + Misc::input_compress(@config) +
     " #{tmp_arg} -r #{fastq} > " + match_file
   end
+
+  # Use bwaaln instead of the match step (experimental)
+  # TODO: Eventually, bfast2_bin will change to main_bin 
+  def bwaaln(fastq)
+    set_current_split(fastq)
+    bfast2_bin('bwaaln') + "-c -t#{@config.global_threads} #{@config.bwaaln_prefix} " + 
+    "#{fastq} > " + match_file
+  end
   
   # bfast localalign -A 1 -t -n 8 -f $ref
   # -m bfast.matches.file.$root.bmf # bfast.aligned.file.$root.baf
   def local
     main_bin('localalign') + core_cmd + " -m #{match_file} > #{local_file}"
   end
+
+  # Since we match with bwaaln, we have to enable -U:
+  # -U    Do not use mask constraints from the match step
+  # TODO Eventually, bfast2_bin will change to main_bin 
+  def local_u
+    bfast2_bin('localalign') + core_cmd + " -U -m #{match_file} > #{local_file}"
+  end
+
   # -a 3 -O 3 > bfast.reported.file.$root.sam
   def post
     main_bin('postprocess') + " -f #{ref} " + " -i #{local_file} " +
-    "-a 3 -O 3 > #{sam_file}"
+    "-a 3 -O 1 > #{sam_file}"
 
     ## If you want RG tag
     ##"-a 3 -O 3 -r #{Misc::RG_FNAME} > #{sam_file}"
@@ -212,6 +228,10 @@ class BfastCmd
   
   def main_bin(sub_cmd)
     "#{@config.global_bfast_bin}/bfast #{sub_cmd} "
+  end
+
+  def bfast2_bin(sub_cmd)
+    "#{@config.global_bfast2_bin}/bfast #{sub_cmd} "
   end
 
   def tmp_arg

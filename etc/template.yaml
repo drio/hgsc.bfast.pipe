@@ -1,13 +1,15 @@
 input_options:
  run_name: __RN__
 global_options:
+ bwaaln: 0
  dist_dir: /stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/hgsc.bfast.pipe
  input_MP: __IMP__
  input_CAP: __ICAP__
  lsf_queue: normal
  picard_validation: "STRICT"
  threads: 8
- bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/versions/production/bfast
+ bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/versions/bfast-0.6.4c/bfast
+ bfast2_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/versions/bfast.git.bfast2/bfast
  samtools_bin: /stornext/snfs1/next-gen/software/samtools-0.1.6
  picardjars: /stornext/snfs1/next-gen/software/picard-tools/current
  java_vm: /stornext/snfs1/next-gen/software/jdk1.6.0_01/bin/java
@@ -27,6 +29,9 @@ global_options:
 match_options:
  threads: 8
  lsf_resources: "rusage[mem=28000]span[hosts=1]"
+bwaaln_options:
+ threads: 8
+ prefix: /stornext/snfs4/next-gen/solid/bf.references/h/hsap.36.1.hg18/bwaaln/hsap_36.1_hg18.fa
 local_options:
  threads: 8
  lsf_resources: "rusage[mem=28000]span[hosts=1]"
