@@ -202,8 +202,9 @@ class BfastCmd
   def merged_bam; "./output/#{root_name}.merged.bam"; end
 
   def list_bams_to_merge
-    t = "output/SS/bfast.reported.file.#{root_name}.SS.bam"
-    (1..@n_splits).inject("") {|list, s| list << "INPUT=" + t.gsub(/SS/, "split#{s}") + " " }
+    sm = "_sSs_"
+    t  = "output/#{sm}/bfast.reported.file.#{root_name}.SS.bam"
+    (1..@n_splits).inject("") {|list, s| list << "INPUT=" + t.gsub(/#{sm}/, "split#{s}") + " " }
   end
 
   def split_dir
