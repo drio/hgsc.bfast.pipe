@@ -219,7 +219,7 @@ class BfastCmd
 
   def list_bams_to_merge
     sm = "_sSs_"
-    t  = "output/#{sm}/bfast.reported.file.#{root_name}.SS.bam"
+    t  = "output/#{sm}/bfast.reported.file.#{root_name}.#{sm}.bam"
     (1..@n_splits).inject("") {|list, s| list << "INPUT=" + t.gsub(/#{sm}/, "split#{s}") + " " }
   end
 
