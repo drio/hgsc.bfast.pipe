@@ -13,7 +13,7 @@ global_options:
  java_vm: /stornext/snfs1/next-gen/software/jdk1.6.0_01/bin/java
  trackdir: ./track_jobs
  space: CS
- fasta_file_name: /stornext/snfs4/next-gen/solid/bf.references/h/hsap.36.1.hg18/hsap_36.1_hg18.fa
+ fasta_file_name: /stornext/snfs5/next-gen/solid/bf.references/h/hsap.36.1.hg18/hsap_36.1_hg18.fa
  timing: ON
  logs_dir: ./lsf_logs
  run_dir: __RUN_DIR__
