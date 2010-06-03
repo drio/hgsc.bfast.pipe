@@ -5,7 +5,7 @@
 # didn't
 #
 
-mail_to="pellon@bcm.edu deiros@bcm.edu niravs@bcm.edu"
+mail_to="pellon@bcm.edu deiros@bcm.edu niravs@bcm.edu pc2@bcm.edu"
 
 help()
 {
