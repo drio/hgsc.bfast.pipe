@@ -68,6 +68,16 @@ class Sequence_event
     end
   end
 
+  def pe?(raw_data)
+    if raw_data.size == 4 and                                               # 4 raw files
+       raw_data.inject(0) {|sum, i| i =~ /F5-P2/ ? sum + 1 : sum } == 2 and # 2 raw files with the regexp on it
+       raw_data.inject(0) {|sum, i| i =~ /_F3/ ? sum + 1 : sum } == 2       # 2 raw files with the regexp on it
+      true
+    else
+      false
+    end
+  end
+
   def to_s
     return @run_name
   end
@@ -81,11 +91,12 @@ class Sequence_event
     r_name = File.basename(sea, '.*')
     #r_name.slice!(/_[a-z0-9A-Z]+_[a-z0-9A-Z]+$/)
 
-    # A qual file will have suffix _F{R}3_QV
-    # A csfasta file will have suffix F{R}3
+    # A qual file will have suffix _F{R}3_QV OR _F5-P2_QV (new v4 format for PE data)
+    # A csfasta file will have suffix F{R}3 OR _F5-P2_QV (new v4 format for PE data)
     # Following two statements remove these suffixes
     r_name.slice!(/_QV$/)
-    r_name.slice!(/_[FR]3$/)
+    r_name.slice!(/-P2$/)
+    r_name.slice!(/_[FR][35]$/)
 
     (valid?(r_name) and @run_name == r_name) ? true : false
   end

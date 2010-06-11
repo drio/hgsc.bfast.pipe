@@ -52,17 +52,22 @@ class SEA_create
     if sea.mp? and raw_data.size != 4 
       dump_raw_data_found(raw_data)
       Helpers::log("SEA is MP but raw data != 4 (#{raw_data.size})", 1)
-    elsif sea.fr? and raw_data.size != 2
+    elsif sea.pe?(raw_data) and raw_data.size != 4
+      dump_raw_data_found(raw_data)
+      Helpers::log("SEA is PE but raw data != 4 (#{raw_data.size})", 1)
+    elsif sea.fr? and raw_data.size != 2 and !sea.pe?(raw_data)
       dump_raw_data_found(raw_data)
       Helpers::log("SEA is FR but raw data != 2 (#{raw_data.size})", 1)
     else
+      dump_raw_data_found(raw_data)
       Helpers::log "raw data found"
     end
    
     # C. Generate config:
     bf_config = Yaml_template.new.to_s
     bf_config.gsub!(/__RN__/        , sea.to_s)
-    bf_config.gsub!(/__IMP__/       , sea.mp?  ? "1" : "0")
+    # TODO: let's run PE data as MP for the moment .... change to PE when valid
+    bf_config.gsub!(/__IMP__/       , (sea.mp? or sea.pe?(raw_data)) ? "1" : "0")
     bf_config.gsub!(/__ICAP__/      , c_design ? "1" : "0")
     bf_config.gsub!(/__RUN_DIR__/   , sea_dir + "/input")
     bf_config.gsub!(/__READS_DIR__/ , sea_dir + "/reads")
