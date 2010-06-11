@@ -8,7 +8,7 @@ global_options:
  lsf_queue: normal
  picard_validation: "STRICT"
  threads: 8
- bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/versions/bfast-0.6.4c/bfast
+ bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/versions/bfast-0.6.4d/bfast
  bfast2_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/versions/bfast.git.bfast2/bfast
  samtools_bin: /stornext/snfs1/next-gen/software/samtools-0.1.6
  picardjars: /stornext/snfs1/next-gen/software/picard-tools/current
