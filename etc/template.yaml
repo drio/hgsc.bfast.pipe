@@ -1,7 +1,7 @@
 input_options:
  run_name: __RN__
 global_options:
- bwaaln: 0
+ bwaaln: __PE__
  dist_dir: /stornext/snfs1/next-gen/solid/hgsc.solid.pipeline/hgsc.bfast.pipe
  input_MP: __IMP__
  input_CAP: __ICAP__

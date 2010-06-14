@@ -69,6 +69,7 @@ class SEA_create
     bf_config.gsub!(/__RN__/        , sea.to_s)
     # TODO: let's run PE data as MP for the moment .... change to PE when valid
     bf_config.gsub!(/__IMP__/       , (sea.mp? or sea.pe?(raw_data)) ? "1" : "0")
+    bf_config.gsub!(/__PE__/        , "0")
     bf_config.gsub!(/__ICAP__/      , c_design ? "1" : "0")
     bf_config.gsub!(/__RUN_DIR__/   , sea_dir + "/input")
     bf_config.gsub!(/__READS_DIR__/ , sea_dir + "/reads")
