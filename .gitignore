@@ -2,7 +2,7 @@ misc/
 *.jar
 *.class
 dbs/*.db
+test/tmp
 java/BAMStats/BAMStatsManifest.txt
 java/bam.header.creation/BAMHeaderCreationManifest.txt
 java/raw.bam.reads.validator/ValidateSOLiDBAMManifest.txt
-test/tmp
