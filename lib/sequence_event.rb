@@ -94,9 +94,9 @@ class Sequence_event
     # A qual file will have suffix _F{R}3_QV OR _F5-P2_QV (new v4 format for PE data)
     # A csfasta file will have suffix F{R}3 OR _F5-P2_QV (new v4 format for PE data)
     # Following two statements remove these suffixes
-    r_name.slice!(/_QV$/)
+    r_name.slice!(/_QV/)
     r_name.slice!(/-P2$/)
-    r_name.slice!(/_[FR][35]$/)
+    r_name.slice!(/_[FR][35]/)
 
     (valid?(r_name) and @run_name == r_name) ? true : false
   end
@@ -111,14 +111,15 @@ class Sequence_event
     # Given run name is valid under the following conditions
     # i)  First 3 fields are numeric followed by SP or SL 
     # ii) Last 2 fields are numeric, and third from last field
-    #     ends with sA (for fragment) or pA (for mate pair)
+    #     ends with sA (for fragment) or pA (for mate pair) or _BC\d+ for Barcode
     if run_name.match(/^\d+_\d+_\d+_SP_/) ||
        run_name.match(/^\d+_\d+_\d+_SL_/)
       valid_prefix = true
     end
 
     if run_name.match(/pA_\d+_\d$/) ||
-       run_name.match(/sA_\d+_\d$/)
+       run_name.match(/sA_\d+_\d$/) ||
+       run_name.match(/sA_\d+_\d_BC\d+$/) 
       valid_suffix = true
     end
     return valid_prefix && valid_suffix

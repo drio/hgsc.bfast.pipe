@@ -25,14 +25,14 @@ module Helpers
     exit bye.to_i if bye != 0
   end
 
-  # Look in all the SEA dirs to see if we can find a SEA dir with 
-  # that name
+  # Look to see if a SEA directory for that sea already exists
   def self.dir_exists?(sea)
     found = []
     SNFS.each do |s|
       i_dir = SEA_DIR_TEMPLATE.gsub(/SS/, s).gsub(/II/, sea.instrument)
       log("I can't find #{i_dir}", 1) unless File.exists?(i_dir)
       re = %r{ ^#{i_dir}/\d+/\d+/#{sea}$ }x
+      log("Looking for SEA dirs in: #{i_dir}")
       Find.find(i_dir) {|p| found << p if p =~ re and File.directory?(p) }
     end
 
@@ -44,6 +44,7 @@ module Helpers
     SNFS.each do |s|
       path = RAW_DIR_TEMPLATE.gsub(/SS/, s).gsub(/II/, sea.instrument)
       log("I can't find #{path}", 1) unless File.exists?(path)
+      log("Looking for raw data in: #{path}")
       Find.find(path) do |path|
         found << path if File.file?(path)             and
                          !File.symlink?(path)         and

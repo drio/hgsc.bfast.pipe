@@ -32,7 +32,7 @@ class SEA_create
     sea_dirs_found = check_for_sea_dirs(sea)
     
     # If found anything .. complain
-    # If all cool, get the full path to the SEA dir we'll use
+    # If all cool (nothing found), get the full path to the SEA dir we'll use
     sea_dir = ""
     if sea_dirs_found.size > 1
       Helpers::log("Found more than 1 SEA directory :(")
@@ -49,6 +49,7 @@ class SEA_create
     #    Bail out: >= 4 raw files ... MP (.csfasta + qual) x 2
     #    Bail out: >= 2 raw files ... FR (.csfasta + .qual)
     raw_data = Helpers::find_raw_data(sea)
+    Helpers::log("# of raw data files found: (#{raw_data.size})")
     if sea.mp? and raw_data.size != 4 
       dump_raw_data_found(raw_data)
       Helpers::log("SEA is MP but raw data != 4 (#{raw_data.size})", 1)
