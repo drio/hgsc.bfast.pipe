@@ -54,6 +54,7 @@ class App
       opts.on('-c', '--c_design c')   {|c| @options.c_design = c }
       opts.on('-q', '--queue    q')   {|q| @options.queue    = q }
       opts.on('-a', '--action   a')   {|a| @options.action   = a }
+      opts.on('-f', '--force_mp')     { @options.force_mp = true }
             
       log "Processing arguments"
       opts.parse!(@arguments) rescue return false
@@ -82,6 +83,8 @@ class App
       @c_design = @options.c_design || nil
       @queue    = @options.queue    || "normal"
       @action   = @options.action
+      @force_pe = @options.force_mp || false
+      log "Forcing MP mode detected" if @force_pe
     end
     
     def output_help
@@ -118,6 +121,7 @@ class App
         :queue    => @queue   ,
         :action   => @action  ,
         :sea      => @sea     ,
+        :force_mp => @force_pe,
       }   
     end
 
@@ -145,6 +149,7 @@ Options:
  -r, --run_name      Run_name
  -a, --action        action to perform 
 
+ -f, --force_pe      Force MP despite the SE is a PE
  -c, --c_design      capture_design [optional]
  -q, --queue         cluster queue  [def: normal]
 

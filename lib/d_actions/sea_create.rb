@@ -3,7 +3,7 @@ class SEA_create
   end
 
   def run(params)
-    perform_create(params[:sea], params[:c_design])
+    perform_create(params[:sea], params[:c_design], params[:force_mp])
   end
 
   private
@@ -25,7 +25,7 @@ class SEA_create
     sds.each_with_index {|s,i| Helpers::log("#{i}. #{s}", 1) }
   end
 
-  def perform_create(sea, c_design)
+  def perform_create(sea, c_design, force_mp)
     # A. check /stornext/snfs(1/4)/next-gen/solid/analysis/solid0312 to see 
     #    if the SEA directory exists. 
     #    Bail out: printing the path to the SEA dir found.
@@ -67,9 +67,8 @@ class SEA_create
     # C. Generate config:
     bf_config = Yaml_template.new.to_s
     bf_config.gsub!(/__RN__/        , sea.to_s)
-    # TODO: let's run PE data as MP for the moment .... change to PE when valid
-    bf_config.gsub!(/__IMP__/       , (sea.mp? or sea.pe?(raw_data)) ? "1" : "0")
-    bf_config.gsub!(/__PE__/        , "0")
+    bf_config.gsub!(/__IMP__/       , (sea.mp?           or  force_mp)  ? "1" : "0")
+    bf_config.gsub!(/__PE__/        , (sea.pe?(raw_data) and !force_mp) ? "1" : "0")
     bf_config.gsub!(/__ICAP__/      , c_design ? "1" : "0")
     bf_config.gsub!(/__RUN_DIR__/   , sea_dir + "/input")
     bf_config.gsub!(/__READS_DIR__/ , sea_dir + "/reads")
