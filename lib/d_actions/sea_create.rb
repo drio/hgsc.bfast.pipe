@@ -3,7 +3,7 @@ class SEA_create
   end
 
   def run(params)
-    perform_create(params[:sea], params[:c_design], params[:force_mp])
+    perform_create(params[:sea], params[:c_design], params[:force_mp], params[:pival])
   end
 
   private
@@ -25,7 +25,7 @@ class SEA_create
     sds.each_with_index {|s,i| Helpers::log("#{i}. #{s}", 1) }
   end
 
-  def perform_create(sea, c_design, force_mp)
+  def perform_create(sea, c_design, force_mp, pival)
     # A. check /stornext/snfs(1/4)/next-gen/solid/analysis/solid0312 to see 
     #    if the SEA directory exists. 
     #    Bail out: printing the path to the SEA dir found.
@@ -74,6 +74,7 @@ class SEA_create
     bf_config.gsub!(/__READS_DIR__/ , sea_dir + "/reads")
     bf_config.gsub!(/__OUTPUT_DIR__/, sea_dir + "/output")
     bf_config.gsub!(/__CD__/        , c_design ? c_design : "" )
+    bf_config.gsub!(/__PIVAL__/     , pival)
 
     # D. create SEA dir, input dir and links to raw data
     Helpers::create_dir(sea_dir)

@@ -6,7 +6,7 @@ global_options:
  input_MP: __IMP__
  input_CAP: __ICAP__
  lsf_queue: normal
- picard_validation: "STRICT"
+ picard_validation: __PIVAL__
  threads: 8
  bfast_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/versions/bfast-0.6.4d/bfast
  bfast2_bin: /stornext/snfs1/next-gen/drio-scratch/bfast_related/versions/bfast.git.bfast2/bfast

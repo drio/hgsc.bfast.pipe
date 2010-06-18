@@ -54,10 +54,15 @@ class App
       opts.on('-c', '--c_design c')   {|c| @options.c_design = c }
       opts.on('-q', '--queue    q')   {|q| @options.queue    = q }
       opts.on('-a', '--action   a')   {|a| @options.action   = a }
-      opts.on('-f', '--force_mp')     { @options.force_mp = true }
+      opts.on('-f', '--force_mp')     {    @options.force_mp = true }
+      opts.on('-p', '--pival p')      {|p| @options.pival    = p.upcase }
             
       log "Processing arguments"
       opts.parse!(@arguments) rescue return false
+      if ! @options.pival.nil? and ! %w(STRICT LENIENT SILENT).include?(@options.pival)
+          log "Invalid picard validation string"
+          return false
+      end
       log "Parsing options"
       process_options
       true
@@ -84,6 +89,8 @@ class App
       @queue    = @options.queue    || "normal"
       @action   = @options.action
       @force_pe = @options.force_mp || false
+      @pival    = @options.pival || "STRICT"
+      log "picard validation mode: #{@pival}"
       log "Forcing MP mode detected" if @force_pe
     end
     
@@ -122,7 +129,8 @@ class App
         :action   => @action  ,
         :sea      => @sea     ,
         :force_mp => @force_pe,
-      }   
+        :pival    => @pival  ,
+      }
     end
 
     def log(msg)
@@ -139,7 +147,7 @@ app = App.new(ARGV, STDIN)
 app.run
 
 __END__
-Usage: 
+Usage:
   analysis_driver.rb [options]
 
 Options:
@@ -150,8 +158,9 @@ Options:
  -a, --action        action to perform 
 
  -f, --force_pe      Force MP despite the SE is a PE
- -c, --c_design      capture_design [optional]
- -q, --queue         cluster queue  [def: normal]
+ -c, --c_design      capture_design
+ -q, --queue         cluster queue     [normal]
+ -p, --pival         Picard validation [STRINGENT] (STRICT|LENIENT|SILENT)
 
 Valid actions:
  create: create the analysis dir and config file
