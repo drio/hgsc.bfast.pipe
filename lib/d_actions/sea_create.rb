@@ -3,7 +3,7 @@ class SEA_create
   end
 
   def run(params)
-    perform_create(params[:sea], params[:c_design], params[:force_mp], params[:pival])
+    perform_create(params[:sea], params[:c_design], params[:force_mp], params[:force_pe], params[:pival])
   end
 
   private
@@ -25,7 +25,7 @@ class SEA_create
     sds.each_with_index {|s,i| Helpers::log("#{i}. #{s}", 1) }
   end
 
-  def perform_create(sea, c_design, force_mp, pival)
+  def perform_create(sea, c_design, force_mp, force_pe, pival)
     # A. check /stornext/snfs(1/4)/next-gen/solid/analysis/solid0312 to see 
     #    if the SEA directory exists. 
     #    Bail out: printing the path to the SEA dir found.
@@ -56,7 +56,7 @@ class SEA_create
     elsif sea.pe?(raw_data) and raw_data.size != 4
       dump_raw_data_found(raw_data)
       Helpers::log("SEA is PE but raw data != 4 (#{raw_data.size})", 1)
-    elsif sea.fr? and raw_data.size != 2 and !sea.pe?(raw_data)
+    elsif sea.fr? and raw_data.size != 2 and !sea.pe?(raw_data) and !force_pe
       dump_raw_data_found(raw_data)
       Helpers::log("SEA is FR but raw data != 2 (#{raw_data.size})", 1)
     else
@@ -67,8 +67,10 @@ class SEA_create
     # C. Generate config:
     bf_config = Yaml_template.new.to_s
     bf_config.gsub!(/__RN__/        , sea.to_s)
-    bf_config.gsub!(/__IMP__/       , (sea.mp?           or  force_mp)  ? "1" : "0")
-    bf_config.gsub!(/__PE__/        , (sea.pe?(raw_data) and !force_mp) ? "1" : "0")
+    bf_config.gsub!(/__IMP__/       , (sea.mp? or  force_mp)  ? "1" : "0")
+    # This is a little bit confusing but it is the only option since we don't have a marker
+    # in the SE names for PE data (for v4 we can check the raw data filenames)
+    bf_config.gsub!(/__PE__/        , ((sea.pe?(raw_data) and !force_mp) or (sea.fr? and force_pe)) ? "1" : "0")
     bf_config.gsub!(/__ICAP__/      , c_design ? "1" : "0")
     bf_config.gsub!(/__RUN_DIR__/   , sea_dir + "/input")
     bf_config.gsub!(/__READS_DIR__/ , sea_dir + "/reads")

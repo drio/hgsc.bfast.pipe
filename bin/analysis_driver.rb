@@ -55,6 +55,7 @@ class App
       opts.on('-q', '--queue    q')   {|q| @options.queue    = q }
       opts.on('-a', '--action   a')   {|a| @options.action   = a }
       opts.on('-f', '--force_mp')     {    @options.force_mp = true }
+      opts.on('-e', '--force_pe')     {    @options.force_pe = true }
       opts.on('-p', '--pival p')      {|p| @options.pival    = p.upcase }
             
       log "Processing arguments"
@@ -88,10 +89,12 @@ class App
       @c_design = @options.c_design || nil
       @queue    = @options.queue    || "normal"
       @action   = @options.action
-      @force_pe = @options.force_mp || false
+      @force_mp = @options.force_mp || false
+      @force_pe = @options.force_pe || false
       @pival    = @options.pival || "STRICT"
       log "picard validation mode: #{@pival}"
-      log "Forcing MP mode detected" if @force_pe
+      log "Forcing MP mode detected" if @force_mp
+      log "Forcing PE mode detected" if @force_pe
     end
     
     def output_help
@@ -128,7 +131,8 @@ class App
         :queue    => @queue   ,
         :action   => @action  ,
         :sea      => @sea     ,
-        :force_mp => @force_pe,
+        :force_mp => @force_mp,
+        :force_pe => @force_pe,
         :pival    => @pival  ,
       }
     end
@@ -157,7 +161,8 @@ Options:
  -r, --run_name      Run_name
  -a, --action        action to perform 
 
- -f, --force_pe      Force MP despite the SE is a PE
+ -f, --force_mp      Force MP despite the SE is a PE
+ -e, --force_pe      Force PE despite the SE is a FR
  -c, --c_design      capture_design
  -q, --queue         cluster queue     [normal]
  -p, --pival         Picard validation [STRINGENT] (STRICT|LENIENT|SILENT)
