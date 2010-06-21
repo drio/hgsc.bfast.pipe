@@ -80,7 +80,7 @@ dep = lsf.add_job("dups", cmds.dups, "", re_dups, [dep])
 
 # Run stats
 s_deps = []
-if config.global_input_MP == 0
+if config.global_input_MP == 0 and config.global_bwaaln == 0
   s_deps << lsf.add_job("stats", cmds.stats_frag, "", re_stats, [dep])
 else
   s_deps << lsf.add_job("stats_F3", cmds.stats_f3, "", re_stats, [dep])
