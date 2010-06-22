@@ -65,14 +65,24 @@ class SEA_create
       dump_raw_data_found(raw_data)
       Helpers::log "raw data found"
     end
+
+    # Tell the user what kind of SE I detected.
+    Helpers::log "sea.fr?: #{sea.fr?} "
+    Helpers::log "sea.pe?: #{sea.pe?(raw_data)} "
+    Helpers::log "sea.mp?: #{sea.mp?} "
    
     # C. Generate config:
+    mp_detection = (sea.mp? or  force_mp)  ? "1" : "0"
+    pe_detection = ((sea.pe?(raw_data) and !force_mp) or (sea.fr? and force_pe)) ? "1" : "0"
+    Helpers::log "cfg MP: #{mp_detection}"
+    Helpers::log "cfg PE: #{pe_detection}"
+
     bf_config = Yaml_template.new.to_s
     bf_config.gsub!(/__RN__/        , sea.to_s)
-    bf_config.gsub!(/__IMP__/       , (sea.mp? or  force_mp)  ? "1" : "0")
+    bf_config.gsub!(/__IMP__/       , mp_detection)
     # This is a little bit confusing but it is the only option since we don't have a marker
     # in the SE names for PE data (for v4 we can check the raw data filenames)
-    bf_config.gsub!(/__PE__/        , ((sea.pe?(raw_data) and !force_mp) or (sea.fr? and force_pe)) ? "1" : "0")
+    bf_config.gsub!(/__PE__/        , pe_detection)
     bf_config.gsub!(/__ICAP__/      , c_design ? "1" : "0")
     bf_config.gsub!(/__RUN_DIR__/   , sea_dir + "/input")
     bf_config.gsub!(/__READS_DIR__/ , sea_dir + "/reads")
