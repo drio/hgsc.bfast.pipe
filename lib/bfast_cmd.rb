@@ -161,7 +161,7 @@ class BfastCmd
   def email_success
     extra_fn  = "email_info.txt"
     email_to  = @config.success_email_to
-    cat_files = if @config.global_input_MP == 1
+    cat_files = if @config.global_input_MP == 1 or config.global_bwaaln == 1
       "marked.stats.F3.txt marked.stats.R3.txt"
     else 
       "marked.stats.txt"
