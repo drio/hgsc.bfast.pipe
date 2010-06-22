@@ -50,7 +50,9 @@ class SEA_create
     #    Bail out: >= 2 raw files ... FR (.csfasta + .qual)
     raw_data = Helpers::find_raw_data(sea)
     Helpers::log("# of raw data files found: (#{raw_data.size})")
-    if sea.mp? and raw_data.size != 4 
+    if raw_data.size == 0
+      Helpers::log("There is no raw data. Bailing out", 1)
+    elsif sea.mp? and raw_data.size != 4 
       dump_raw_data_found(raw_data)
       Helpers::log("SEA is MP but raw data != 4 (#{raw_data.size})", 1)
     elsif sea.pe?(raw_data) and raw_data.size != 4
