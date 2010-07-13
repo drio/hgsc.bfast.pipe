@@ -15,7 +15,7 @@ module Helpers
                       curr_dir + "/tmp"
   SEA_DIR_TEMPLATE = "#{L1_DIR}/snfsSS/next-gen/solid/analysis/solidII"
   RAW_DIR_TEMPLATE = "#{L1_DIR}/snfsSS/next-gen/solid/results/solidII"
-  SNFS_NUMBER      = "4"
+  SNFS_NUMBER      = "5"
   RUN_A_PATH       = `id -u -n`.chomp == "p-solid" ?
                       File.dirname($0) + "/../helpers/run_analysis.sh" :
                       curr_dir.gsub!(/test$/, "helpers/run_analysis.sh")
